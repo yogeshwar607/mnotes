@@ -13,10 +13,10 @@ module.exports = (router) => {
     router.get('/customer/get', getUser);
     router.post('/customer/create', createUser);
     router.post('/customer/update', updateUser);
-    router.post('/customer/changePass', changePass);
+    router.post('/customer/changepass', changePass);
     router.post('/customer/signup', signup);
-    router.post('/customer/updateType', updateType);
-    router.post('/customer/otpVerification', otpVerification);
+    router.post('/customer/updatetype', updateType);
+    router.post('/customer/otp/send', otpVerification);
     router.post('/customer/block/account', blockAccount);
     router.post('/customer/block/transaction', blockTransaction);
 

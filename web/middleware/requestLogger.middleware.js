@@ -5,4 +5,5 @@ function requestLogger(router) {
   });
 }
 
-module.exports = requestLogger;
+module.exports = requestLogger
+;
