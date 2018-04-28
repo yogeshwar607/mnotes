@@ -8,7 +8,6 @@ function db_query(vemail, vpassword, vsource) {
 }
 
 async function logic({ body, context, params }) {
-    console.log();
     try {
         let pass = await encryptPassword(body.data.password);
 
@@ -17,7 +16,6 @@ async function logic({ body, context, params }) {
             await sendMail('vaishali@instigence.com', c[0].registration_id);
         }
         return c;
-
     } catch (e) {
         logger.error(e);
         throw e;
