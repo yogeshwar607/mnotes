@@ -7,7 +7,8 @@ const {
     decryptComparePassword
 } = rootRequire('commons').DATABASE;
 const {
-    trimObject,getErrorMessages
+    trimObject,
+    getErrorMessages
 } = rootRequire('commons').UTILS;
 const {
     customerJoiSchema
@@ -68,7 +69,7 @@ async function logic({
                     ' WHERE email=$1', [customerObj.email]);
                 const payloads = {
                     // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
-                    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30),
+                    exp: process.env.NODE_ENV === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3),
                     sub: {
                         id: c[0].registration_id,
                         loginType: "customer"
