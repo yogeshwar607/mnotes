@@ -1,47 +1,33 @@
-const {
-    ValidationError,
-    ApplicationError,
-    AuthorizationError,
-    PageNotFound,
-} = rootRequire('commons').ERROR;
+const Boom = require('boom');
+const config = require('nconf');
 
-function errorHelper(err) {
+const postgreSQLErrorMapper = {
+  22023: 400,
+  P0002: 500,
+};
 
-    const obj = {
-        name: err.name,
-        message: err.message,
-        status: 0,
-        errorResponse: err,
+module.exports = function (app) {
+  // Error: 404
+  app.use((req, res, next) => {
+    next(Boom.notFound('Invalid endpoint'));
+  });
+
+  app.use((err, req, res, next) => {
+    // Convert if error does not belong to Boom object
+    // Also map postgreSQL error
+    const _err = err.isBoom ? err : Boom.boomify(err, { statusCode: err.code ? postgreSQLErrorMapper[err.code] : 500 });
+    /** Boom error */
+    const payload = {
+      error: _err.output.payload.error,
+      message: _err.message,
+      statusCode: _err.output.payload.statusCode,
     };
-
-
-    if (err instanceof ValidationError) {
-        obj.status = 400; // Bad Request
-    } else if (err instanceof AuthorizationError) {
-        obj.status = 401; // Unauthorised
-    } else if (err instanceof ApplicationError) {
-        obj.status = 500; // Internal Server Error
-    } else if (err instanceof PageNotFound) {
-        obj.status = 404; // Page Not Found Error
-    } else {
-        obj.status = 500;
-    }
-
-    return obj;
-}
-
-module.exports = function(app) {
-    // Error: 404
-    app.use((req, res, next) => {
-        next(new PageNotFound('Invalid Endpoint'));
+    if (config.get('NODE_ENV') === 'development') logger.error(`Stack: ${_err.stack}`);
+    logger.error(`Name: ${payload.error} | message: ${payload.message} | status: ${payload.statusCode}`);
+    res.status(payload.statusCode).json({
+      success: false,
+      data: payload,
     });
-
-    app.use((err, req, res, next) => {
-        const error = errorHelper(err);
-        logger.error(`Error name: ${error.name} | message: ${error.message} | status: ${error.status}`);
-        res.status(error.status || 500).json({
-            success: false,
-            error,
-        });
-    });
+    next();
+  });
 };

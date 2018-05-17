@@ -1,58 +1,62 @@
-// const joi = require('joi');
+const config = require('nconf');
+const {
+  Pool,
+  types
+} = require('pg');
+const Boom = require('boom');
+const moment = require('moment');
 
-// const envVarsSchema = joi.object({
-//     DB: joi.string().valid(['masspay-v2-staging']).required(),
-//     DB_URI: joi.string().valid(['localhost']).required(),
-//   }).unknown()
-//   .required();
+const {
+  getCommaSeparatedColumns,
+  getObjectValues,
+  getCommaSeparatedParamSubtitute,
+  getUpdateSetClause,
+} = rootRequire('commons').UTILS;
 
-// const { error, value: envVars } = joi.validate(process.env, envVarsSchema);
-// if (error) {
-//   throw new Error(`Config validation error: ${error.message}`);
-// }
 
-// const config = {
-//   db: envVars.DB,
-//   dbURI: envVars.DB_URI,
-//   connectionString: `mongodb://${envVars.DB_URI}/${envVars.DB}`,
-// };
-// const { Client } = require('pg')
-
-// // const config = new Client({
-// //     host: '183.87.142.250',
-// //     port: 5433,
-// //     user: 'postgres',
-// //     password: 'sa@123',
-// //     database: "Remittance"
-// // })
-
-// //Heroku Server connectivity
-// const config = new Client({
-//     host: 'ec2-23-21-201-255.compute-1.amazonaws.com',
-//     port: 5432,
-//     user: 'uueubcejqlrroh',
-//     password: 'efb86792e52a6628d227bcfb5025b504cbbe6f0fd10f542eae26ad3c50ea474f',
-//     database: "da9ubjksb8fk80",
-//     ssl: true
-// })
-
-const { Pool } = require('pg')
+// Fix for parsing of numeric fields
+types.setTypeParser(1700, 'text', parseFloat);
+types.setTypeParser(20, (val) => {
+  return parseInt(val, 10);
+});
+// Fix for parsing of date fields
+types.setTypeParser(1082, (val) => {
+  return val === null ? null : moment(val).format('DD/MM/YYYY');
+});
+// Fix for parsing of timestamp without timezone fields
+types.setTypeParser(1114, (val) => {
+  return val;
+});
+// Fix for parsing of timestamp with timezone fields
+types.setTypeParser(1184, (val) => {
+  return val;
+});
 
 const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    user: 'uueubcejqlrroh',
-    password: '1234',
-    database: "Remittance",
-    ssl: false,
-    max: 20
+  host: 'localhost',
+  port: 5432,
+  user: 'uueubcejqlrroh',
+  password: '1234',
+  database: "Remittance",
+  ssl: false,
+  max: 20
 })
 
-// the pool with emit an error on behalf of any idle clients
-// it contains if a backend error or network partition happens
-pool.on('error', (err, client) => {
-    console.error('Unexpected error on idle client', err)
-    process.exit(-1)
-})
+// const pool = new Pool({
+//   user: config.get('PGUSER'),
+//   host: config.get('PGHOST'),
+//   database: config.get('PGDATABASE'),
+//   password: config.get('PGPASSWORD'),
+//   port: config.get('PGPORT'),
+//   max: config.get('PGMAX'),
+//   idleTimeoutMillis: config.get('PGIDLETIMEOUT'),
+//   connectionTimeoutMillis: config.get('CONNECTIONTIMEOUT'),
+// });
+
+pool.on('error', (err) => {
+  logger.error(`Postgres connection error on client - ${err.message}`);
+  throw err;
+});
+
 
 module.exports = pool;

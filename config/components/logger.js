@@ -1,21 +1,13 @@
 const winston = require('winston');
+const envConfig = require('nconf');
 
 winston.emitErrs = true;
 
 const logger = new winston.Logger({
 
   transports: [
-    // new winston.transports.File({
-    //   level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
-    //   filename: './logs/all-logs.log',
-    //   handleExceptions: false,
-    //   json: true,
-    //   maxsize: 1242880, // 1MB
-    //   maxFiles: 5,
-    //   colorize: false,
-    // }),
     new winston.transports.Console({
-      level: process.env.LOGGER_LEVEL || 'info',
+      level: envConfig.get("LOGGER_LEVEL") || 'info',
       handleExceptions: false,
       json: false,
       colorize: true,

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const envConfig = require('nconf');
 
 const {
     query,
@@ -69,7 +70,7 @@ async function logic({
                     ' WHERE email=$1', [customerObj.email]);
                 const payloads = {
                     // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
-                    exp: process.env.NODE_ENV === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3),
+                    exp: envConfig.get("NODE_ENV") === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3),
                     sub: {
                         id: c[0].registration_id,
                         loginType: "customer"

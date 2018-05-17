@@ -1,15 +1,16 @@
 const joi = require('joi');
+const nconf = require('nconf');
 
 const envVarsSchema = joi.object({
         NODE_ENV: joi.string()
-            .allow(['development', 'production', 'test', 'provision'])
+            .allow(['development', 'production', 'test', 'provision','staging'])
             .required(),
         PORT: joi.number()
             .required(),
     }).unknown()
     .required();
 
-const { error, value: envVars } = joi.validate(process.env, envVarsSchema);
+const { error, value: envVars } = joi.validate(nconf.get(), envVarsSchema);
 if (error) {
     throw new Error(`Config validation error: ${error.message}`);
 }

@@ -1,4 +1,6 @@
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const envConfig = require('nconf');
+
+const NODE_ENV = envConfig.get("NODE_ENV") || 'development';
 
 module.exports = {
   get TRULIOO_URL() {

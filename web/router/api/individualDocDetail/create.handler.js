@@ -59,8 +59,10 @@ function mock() {
         obj.status = true
     } else {
         obj.msg = "upload unsuccessful",
-            obj.status = false
+        obj.status = false
     }
+     obj.msg = "upload successful"
+        obj.status = true
     return obj;
 }
 
@@ -82,10 +84,15 @@ function handler(req, res, next) {
 
             let doc_path = req.files && req.files.length && req.files[0].path ? req.files[0].path : '';
 
+            let is_file_received = false ;
+            if(req.files && req.files.length) {
+                 is_file_received = true;
+            }
             req.context = {};
             req.context.doc_path = doc_path;
 
             logic(req).then(data => {
+                data['is_file_received'] =is_file_received;
                     res.json({
                         success: true,
                         data,
