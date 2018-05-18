@@ -1,14 +1,15 @@
-
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const Boom = require('boom');
 
 const {
-    query,
-    paramQuery,
+    query: pgQuery,
     decryptComparePassword
-} = rootRequire('commons').DATABASE;
+} = rootRequire('db');
+
 const {
-    trimObject,getErrorMessages
+    trimObject,
+    getErrorMessages
 } = rootRequire('commons').UTILS;
 const {
     customerJoiSchema
@@ -41,18 +42,23 @@ async function logic({
             abortEarly: false
         });
 
-        if (error) throw new ValidationError(getErrorMessages(error));
-        let c = await paramQuery('SELECT id, email, password,is_2fa_enabled' +
-        ' FROM "Remittance".admin_user WHERE email=$1', [adminObj.email]);
+        if (error) throw Boom.badRequest(getErrorMessages(error));
 
+        const text = 'SELECT id, email, password,is_2fa_enabled' +
+            ' FROM "Remittance".admin_user WHERE email=$1';
+        const values = [
+            adminObj.email
+        ];
+        const {
+            rows: result
+        } = await pgQuery(text, values);
 
-        if (c.length === 0) {
+        if (result.length === 0) {
             return {
                 msg: "invalid email"
             }
-        }
-         else if (c.length !== 0) {
-            let f = await decryptComparePassword(adminObj.password, c[0].password);
+        } else if (result.length !== 0) {
+            let f = await decryptComparePassword(adminObj.password, result[0].password);
             if (!f) {
                 return {
                     msg: "invalid password"
@@ -60,14 +66,17 @@ async function logic({
             } else {
                 const payloads = {
                     // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
-                    exp: process.env.NODE_ENV === 'production' ?  Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30),
+                    exp: process.env.NODE_ENV === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30),
                     sub: {
                         id: c[0].id,
                         loginType: "admin"
                     }
                 };
                 const token = jwt.sign(payloads, jwtSecret);
-                return { user: c, token: token };
+                return {
+                    user: result,
+                    token: token
+                };
             }
         }
     } catch (e) {

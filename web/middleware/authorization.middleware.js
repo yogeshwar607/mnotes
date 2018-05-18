@@ -1,9 +1,10 @@
 const AppError = rootRequire('commons').ERROR;
 const { jwtSecret } = rootRequire('config').server;
-const { query, paramQuery } = rootRequire('commons').DATABASE;
-// const nodemailer = require('nodemailer');
+const { query:pgQuery } = rootRequire('db');
+
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
+const Boom = require('boom');
 
 const request = require('superagent');
 // const Schema = require('mongoose').Schema;
@@ -22,14 +23,16 @@ async function authorization(router) {
                 logger.error(`The error while decoding token ${err}`);
                 return next(err);
             }
-
-
+            let values = [decoded.sub.id];
 
             if (decoded.sub.loginType == "customer") {
-                let a = await paramQuery('SELECT email FROM "Remittance".customer WHERE registration_id=$1', [decoded.sub.id]);
-
+        
+                const {
+                    rows: a
+                } = await pgQuery('SELECT email FROM "Remittance".customer WHERE registration_id=$1', values);
+        
                 if (a.length === 0) {
-                    return next(new AppError.AuthorizationError('Authentication failed. User not found.'));
+                    return next(Boom.AuthorizationError('Authentication failed. User not found.'));
                 } else {
                     request
                         .get('https://ipinfo.io/' + ip + '/json')
@@ -46,17 +49,16 @@ async function authorization(router) {
 
             } else if (decoded.sub.loginType == "admin") {
 
-                let a = await paramQuery('SELECT email FROM "Remittance".admin_user WHERE id=$1', [decoded.sub.id]);
-
+                const {
+                    rows: a
+                } = await pgQuery('SELECT email FROM "Remittance".admin_user WHERE id=$1', values);
+        
                 if (a.length === 0) {
-                    return next(new AppError.AuthorizationError('Authentication failed. User admin not found.'));
+                    return next(Boom.AuthorizationError('Authentication failed. User Admin not found.'));
                 } else {
                     return next();
                 }
             }
-
-
-
         });
     });
 }

@@ -180,11 +180,11 @@ function getClientIpAddress(req) {
  * @param {*} req
  */
 
-// function getGEOIP(req) {
-//   const ip = req.clientIP;
-//   const geo = ip && ip !== '127.0.0.1' ? geoip.lookup(ip) : ip;
-//   return geo || ip;
-// }
+function getGEOIP(req) {
+  const ip = req.clientIP;
+  const geo = ip && ip !== '127.0.0.1' ? geoip.lookup(ip) : ip;
+  return geo || ip;
+}
 
 function getUserAgent(userAgent) {
   return useragent.lookup(userAgent) || userAgent;
@@ -519,9 +519,6 @@ module.exports = {
   getNameObj,
   generateSHA256Hash,
   getAddressFromObj,
-  isValidSubscriptionType,
   getDeviceType,
-  splitStreetTypes,
   removeSpaceFromString,
-  convertToCurrency,
 };

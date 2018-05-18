@@ -1,24 +1,25 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const envConfig = require('nconf');
+const Boom = require('boom');
 
 const {
-    query,
-    paramQuery,
+    query: pgQuery,
     decryptComparePassword
-} = rootRequire('commons').DATABASE;
+} = rootRequire('db');
+
 const {
     trimObject,
     getErrorMessages
 } = rootRequire('commons').UTILS;
+
 const {
     customerJoiSchema
 } = rootRequire('commons').SCHEMA;
+
+
 const {
-    ValidationError
-} = rootRequire('commons').ERROR;
-const {
-    jwtSecret
+jwtSecret
 } = rootRequire('config').server;
 
 function enrichCustomerObj(body) {
@@ -41,44 +42,57 @@ async function logic({
         } = Joi.validate(customerObj, customerJoiSchema.loginSchema, {
             abortEarly: false
         });
+        
+        if (error) throw Boom.badRequest(getErrorMessages(error));
 
-        if (error) throw new ValidationError(getErrorMessages(error));
-        let c = await paramQuery('SELECT registration_id, email, password, source, type,' +
+        const text = 'SELECT registration_id, email, password, source, type,' +
             'is_email_verified,' +
             'email_verified_on, is_otp_verified, otp_verified_on, is_transfer_activated,' +
             'transfer_activated_on, is_account_blocked, is_transaction_blocked, ' +
             'last_logged_in, created_on, modified_on, modified_by' +
-            ' FROM "Remittance".customer WHERE email=$1', [customerObj.email]);
+            ' FROM "Remittance".customer WHERE email=$1';
+        const values = [
+            customerObj.email
+        ];
+        const {
+            rows: result
+        } = await pgQuery(text, values);
 
-        if (c.length === 0) {
+        if (result.length === 0) {
             return {
                 msg: "invalid email"
             }
-        } else if (c[0].is_email_verified !== true) {
+        } else if (result[0].is_email_verified !== true) {
             return {
                 msg: "email not verified"
             }
-        } else if (c.length !== 0) {
-            let f = await decryptComparePassword(customerObj.password, c[0].password);
+        } else if (result.length !== 0) {
+            let f = await decryptComparePassword(customerObj.password, result[0].password);
             if (!f) {
                 return {
                     msg: "invalid password"
                 }
             } else {
-                await paramQuery('UPDATE "Remittance".customer' +
+
+                const text = 'UPDATE "Remittance".customer' +
                     ' SET last_logged_in=now(),modified_on=now()' +
-                    ' WHERE email=$1', [customerObj.email]);
+                    ' WHERE email=$1';
+                const values = [
+                    customerObj.email
+                ];
+                await pgQuery(text, values);
+
                 const payloads = {
                     // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
                     exp: envConfig.get("NODE_ENV") === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 3),
                     sub: {
-                        id: c[0].registration_id,
+                        id: result[0].registration_id,
                         loginType: "customer"
                     }
                 };
                 const token = jwt.sign(payloads, jwtSecret);
                 return {
-                    user: c,
+                    user: result,
                     token: token
                 };
             }

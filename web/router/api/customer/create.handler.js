@@ -1,12 +1,20 @@
-const {
-    query,
-    paramQuery,
-    encryptPassword
-} = rootRequire('commons').DATABASE;
+const Boom = require('boom');
 const nodemailer = require('nodemailer');
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
+
+
+const {
+    query: pgQuery,
+    encryptPassword,
+} = rootRequire('db');
+
+const {
+    trimObject,
+    getErrorMessages
+} = rootRequire('commons').UTILS;
+
 
 async function logic({
     body,
@@ -16,20 +24,27 @@ async function logic({
     try {
         let password = await encryptPassword(body.password);
         let registrationId = uuidv4();
+      
         let values = [body.email, password, body.source, body.type,
             body.is_email_verified, body.is_otp_verified,
             body.is_transfer_activated,
             body.is_account_blocked, body.is_transaction_blocked,
             body.modified_by, registrationId
         ];
-        let c = await paramQuery('INSERT INTO "Remittance".customer(' +
+    
+            const text = 'INSERT INTO "Remittance".customer(' +
             'email, password, source, type, is_email_verified,' +
             'is_otp_verified, is_transfer_activated, ' +
             'is_account_blocked, is_transaction_blocked, ' +
             'modified_by,registration_id) ' +
-            'VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)', values);
+            'VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)';
+       
+        const {
+            rows: result
+        } = await pgQuery(text, values);
 
-        await sendMail(body.email);
+
+     //   await sendMail(body.email);
         let x = mock(registrationId); // mock function to generate values
         return x;
     } catch (e) {

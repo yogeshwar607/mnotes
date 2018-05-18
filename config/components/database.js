@@ -39,7 +39,8 @@ const pool = new Pool({
   password: '1234',
   database: "Remittance",
   ssl: false,
-  max: 20
+  max: 20,
+  
 })
 
 // const pool = new Pool({

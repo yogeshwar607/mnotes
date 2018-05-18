@@ -5,7 +5,14 @@ const {
     database
 } = rootRequire('config');
 const saltRounds = 10;
-
+const {
+    getCommaSeparatedColumns,
+    getObjectValues,
+    getCommaSeparatedParamSubtitute,
+    getUpdateSetClause,
+  } = rootRequire('commons').UTILS;
+  
+  const schemaName = '"Remittance".'
 /**
  * Notice in the example below no releaseCallback was necessary.
  * The pool is doing the acquiring and releasing internally.
@@ -35,7 +42,7 @@ function insert({
     data,
     returnClause
 }) {
-    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(data)})
+    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(data)})
                   VALUES(${getCommaSeparatedParamSubtitute(data)})`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
@@ -56,7 +63,7 @@ function bulkInsert({
     if (data.constructor !== Array && data.length === 0) {
         throw Boom.badRequest('Please provide array of values for bulk insert operation');
     }
-    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(data[0])}) VALUES`;
+    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(data[0])}) VALUES`;
     const values = [];
     const paramsClause = data.map((element, index) => {
         const size = ((Object.keys(element).length) * index) + 1;
@@ -88,7 +95,7 @@ function bulkUpsert({
     if (indexColumns.constructor !== Array && indexColumns.length === 0) {
         throw Boom.badRequest('Please provide array of index columns for upsert operation');
     }
-    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(insertData[0])}) VALUES`;
+    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(insertData[0])}) VALUES`;
     const values = [];
     const paramsClause = insertData.map((element, index) => {
         const size = ((Object.keys(element).length) * index) + 1;
@@ -131,7 +138,7 @@ function update({
     const values = getObjectValues(data);
     Array.prototype.push.apply(values, whereClause.values);
     /** Enriching the update clause */
-    let text = `UPDATE ${tableName} SET ${getUpdateSetClause(data)} ${whereClause.text}`;
+    let text = `UPDATE ${schemaName}${tableName} SET ${getUpdateSetClause(data)} ${whereClause.text}`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
     }
@@ -153,7 +160,7 @@ function upsert({
     if (indexColumns.constructor !== Array && indexColumns.length === 0) {
         throw Boom.badRequest('Please provide array of index columns for upsert operation');
     }
-    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(insertData)})
+    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(insertData)})
     VALUES(${getCommaSeparatedParamSubtitute(insertData)})`;
 
     const values = getObjectValues(insertData);
@@ -187,7 +194,7 @@ function pgDelete({
     if (!(whereClause && typeof whereClause === 'object' && Object.keys(whereClause).length > 0)) {
         throw Boom.badRequest('Please provide valid where clause for delete operation');
     }
-    let text = `DELETE FROM ${tableName}`;
+    let text = `DELETE FROM ${schemaName}${tableName}`;
     text = `${text} ${whereClause.text}`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
@@ -312,9 +319,6 @@ module.exports = {
     update,
     upsert,
     pgDelete,
-    //  query,
-    //  paramQuery,
     decryptComparePassword,
     encryptPassword
-
 };
