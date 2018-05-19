@@ -2,12 +2,13 @@ const uuidv4 = require('uuid/v4');
 const Joi = require('joi');
 const Boom = require('boom');
 
-const { getTableName} = rootRequire('commons').TABLES;
+const {
+    getTableName
+} = rootRequire('commons').TABLES;
 const tableName = getTableName('payees');
 
 const {
     insert,
-    bulkInsert,
     getClient
 } = rootRequire('db')
 const {
@@ -31,7 +32,7 @@ function enrichpayeeObj(body) {
         email: body.email ? body.email.toLowerCase() : '',
         payee_id: body.payee_id,
         cust_id: body.cust_id,
-        alias: body.alias ? body.alias.toLowerCase() :'',
+        alias: body.alias ? body.alias.toLowerCase() : '',
         pincode: body.pincode,
         title: body.title,
         first_name: body.first_name,
@@ -58,6 +59,12 @@ function enrichpayeeObj(body) {
         routing_code_value_2: body.routing_code_value_2,
         routing_code_type_3: body.routing_code_type_3,
         routing_code_value_3: body.routing_code_value_3,
+
+        created_on: postgresDateString(new Date()),
+        created_by: body.cust_id,
+
+        modified_on: postgresDateString(new Date()),
+        modified_by: body.cust_id,
     }
 }
 
@@ -88,7 +95,8 @@ async function logic({
         /** ========================== BEGIN QUERY =============================== */
         await client.query('BEGIN');
         logger.info('client BEGIN');
-        /** Inserting the data into remitter corporate and representative tables */
+
+        /** Inserting the data into payee table */
         const {
             rows: payee
         } = await insert({
@@ -98,6 +106,9 @@ async function logic({
             returnClause: ['payee_id'],
         });
 
+        /** =========================== COMMIT QUERY ============================= */
+        await client.query('COMMIT');
+        logger.info('client commited');
         return payee;
 
     } catch (e) {

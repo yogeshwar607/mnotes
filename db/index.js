@@ -1,6 +1,6 @@
 const Boom = require('boom');
 const bcrypt = require('bcrypt');
-const QueryBuilder = require('./query.builder');
+const { QueryBuilder } = require('./query.builder');
 
 const {
     database
@@ -11,9 +11,8 @@ const {
     getObjectValues,
     getCommaSeparatedParamSubtitute,
     getUpdateSetClause,
-  } = rootRequire('commons').UTILS;
-  
-  const schemaName = '"Remittance".'
+} = rootRequire('commons').UTILS;
+
 /**
  * Notice in the example below no releaseCallback was necessary.
  * The pool is doing the acquiring and releasing internally.
@@ -37,13 +36,14 @@ function getClient() {
     return database.connect();
 }
 
+
 function insert({
     client,
     tableName,
     data,
     returnClause
 }) {
-    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(data)})
+    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(data)})
                   VALUES(${getCommaSeparatedParamSubtitute(data)})`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
@@ -64,7 +64,7 @@ function bulkInsert({
     if (data.constructor !== Array && data.length === 0) {
         throw Boom.badRequest('Please provide array of values for bulk insert operation');
     }
-    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(data[0])}) VALUES`;
+    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(data[0])}) VALUES`;
     const values = [];
     const paramsClause = data.map((element, index) => {
         const size = ((Object.keys(element).length) * index) + 1;
@@ -96,7 +96,7 @@ function bulkUpsert({
     if (indexColumns.constructor !== Array && indexColumns.length === 0) {
         throw Boom.badRequest('Please provide array of index columns for upsert operation');
     }
-    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(insertData[0])}) VALUES`;
+    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(insertData[0])}) VALUES`;
     const values = [];
     const paramsClause = insertData.map((element, index) => {
         const size = ((Object.keys(element).length) * index) + 1;
@@ -139,7 +139,7 @@ function update({
     const values = getObjectValues(data);
     Array.prototype.push.apply(values, whereClause.values);
     /** Enriching the update clause */
-    let text = `UPDATE ${schemaName}${tableName} SET ${getUpdateSetClause(data)} ${whereClause.text}`;
+    let text = `UPDATE ${tableName} SET ${getUpdateSetClause(data)} ${whereClause.text}`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
     }
@@ -161,7 +161,7 @@ function upsert({
     if (indexColumns.constructor !== Array && indexColumns.length === 0) {
         throw Boom.badRequest('Please provide array of index columns for upsert operation');
     }
-    let text = `INSERT INTO ${schemaName}${tableName}(${getCommaSeparatedColumns(insertData)})
+    let text = `INSERT INTO ${tableName}(${getCommaSeparatedColumns(insertData)})
     VALUES(${getCommaSeparatedParamSubtitute(insertData)})`;
 
     const values = getObjectValues(insertData);
@@ -195,7 +195,7 @@ function pgDelete({
     if (!(whereClause && typeof whereClause === 'object' && Object.keys(whereClause).length > 0)) {
         throw Boom.badRequest('Please provide valid where clause for delete operation');
     }
-    let text = `DELETE FROM ${schemaName}${tableName}`;
+    let text = `DELETE FROM ${tableName}`;
     text = `${text} ${whereClause.text}`;
     if (returnClause && returnClause.constructor === Array && returnClause.length > 0) {
         text = `${text} RETURNING ${returnClause.join(',')}`;
@@ -205,90 +205,6 @@ function pgDelete({
     /** If client is not provide then use client from connection pool */
     return query(text, whereClause.values);
 }
-
-// function query(query) {
-//     return new Promise((resolve, reject) => {
-//         // console.log(database);
-
-//         (async () => {
-//             const client = await database.connect()
-//             try {
-//                 const res = await client.query(query)
-//                 resolve(res.rows)
-
-//                 console.log(res.rows[0])
-//             } finally {
-//                 client.release()
-//             }
-//         })().catch(e => console.log(e.stack))
-//         // if (database.readyForQuery == true) {
-
-//         //     database.query(query)
-//         //         .then(result => {
-//         //             resolve(result.rows)
-//         //         })
-//         //         .catch(e => reject(e.stack))
-//         //         .then(() => database.end())
-
-
-//         // } else {
-//         // database.connect()
-//         //     .then(() => {
-//         //         database.query(query)
-//         //             .then(result => {
-//         //                 resolve(result.rows)
-//         //             })
-//         //             .catch(e => reject(e.stack))
-//         //             .then(() => database.end())
-//         //     })
-//         //     .catch(e => console.error('connection error', e.stack))
-//         // }
-
-//     });
-// }
-
-// function paramQuery(query, values) {
-//     return new Promise((resolve, reject) => {
-
-//         (async () => {
-//             const client = await database.connect()
-//             try {
-//                 const res = await client.query(query, values)
-//                 console.log(res.rows[0])
-//                 resolve(res.rows)
-
-//             } finally {
-//                 client.release()
-//             }
-//         })().catch(e => console.log(e.stack))
-
-//         // if (database.readyForQuery == true) {
-
-//         //     database.query(query, values)
-//         //         .then(result => {
-//         //             resolve(result.rows)
-//         //         })
-//         //         .catch(e => reject(e.stack))
-//         //         // .then(() => database.end())
-
-//         // } else {
-
-//         //     database.connect()
-//         //         .then(() => {
-//         //             database.query(query, values)
-//         //                 .then(result => {
-//         //                     resolve(result.rows)
-//         //                 })
-//         //                 .catch(e => reject(e.stack))
-//         //                 // .then(() => database.end())
-//         //         })
-//         //         .catch(e => console.error('connection error', e.stack))
-
-//         // }
-
-//     });
-
-// }
 
 
 function encryptPassword(pass) {
@@ -322,7 +238,6 @@ module.exports = {
     pgDelete,
     decryptComparePassword,
     encryptPassword,
-    schemaName,
     QueryBuilder,
-    
+
 };

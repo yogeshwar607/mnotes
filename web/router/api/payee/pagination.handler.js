@@ -1,4 +1,8 @@
 const Boom = require('boom');
+const Joi = require('joi');
+
+const { getTableName} = rootRequire('commons').TABLES;
+const tableName = getTableName('payees');
 
 const {
   QueryBuilder,
@@ -7,26 +11,9 @@ const {
 } = rootRequire('db');
 
 const columns = {
-  compliance_list_id: 'cl.compliance_list_id',
-  remitter_id: 'cl.remitter_id',
-  beneficiary_id: 'cl.beneficiary_id',
-  type: 'cl.type',
-  start_date: 'cl.start_date',
-  end_date: 'cl.end_date',
-  comment: 'cl.comment',
-  country_code: {
-    name: 'cn.code',
-    format: 'cn.code AS country_code',
-  },
-  is_active: 'cl.is_active',
-  created_at: {
-    name: 'cl.created_at',
-    format: "to_char(cl.created_at,'dd-mm-YYYY HH:MI:SS') as created_at",
-  },
-  created_by: {
-    name: 'u.full_name',
-    format: 'u.full_name AS created_by',
-  },
+  cust_id:'cust_id',
+  full_name:'full_name',
+  payee_id:'payee_id',
 };
 
 async function logic({
@@ -41,20 +28,17 @@ async function logic({
 
     qb.select(columns)
       .selectTotal('count(*)')
-      .from(`${schemaName}${tableName}`)
+      .from(tableName)
       
     qb.where(); // 
-    if (query.entity_type === 'remitter') {
-      qb.and().is(columns.remitter_id, +query.id);
-    } else if (query.entity_type === 'beneficiary') {
-      qb.and().is(columns.beneficiary_id, +query.id);
-    }
+    qb.and().is(columns.cust_id, query.cust_id);
 
-    qb.orderBy(query.sortColumn || columns.created_at.name);
+    qb.orderBy(query.sortColumn || columns.full_name);
     qb.order(query.sortOrder || 'DESC');
     qb.limit(query.limit);
     qb.page(query.page);
     const result = await qb.paginateQuery(pg);
+
     return result;
   } catch (e) {
     throw e;

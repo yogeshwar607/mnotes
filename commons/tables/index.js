@@ -1,9 +1,11 @@
 
+ const schemaName = '"Remittance".'
 const tables = {
     payees:'payees',
 }
+
 function getTableName (key) {
-    return tables[key];
+    return `${schemaName}${tables[key]}`;
 }
 
 module.exports = {

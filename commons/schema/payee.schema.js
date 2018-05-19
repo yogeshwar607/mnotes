@@ -31,7 +31,13 @@ const payeeSchema = Joi.object().keys({
   routing_code_type_2: Joi.string().optional().allow('').valid(constants.ROUTING_CODE_TYPE),
   routing_code_value_2: Joi.string().optional().allow(''),
   routing_code_type_3: Joi.string().optional().allow('').valid(constants.ROUTING_CODE_TYPE),
-  routing_code_value_3: Joi.string().optional().allow('')
+  routing_code_value_3: Joi.string().optional().allow(''),
+
+  created_on: Joi.string().optional().allow(''),
+  created_by: Joi.string().optional().allow(''),
+
+  modified_on: Joi.string().optional().allow(''),
+  modified_by: Joi.string().optional().allow(''),
 });
 
 module.exports = {

@@ -71,10 +71,7 @@ QueryBuilder.prototype.where = function () {
   return this;
 };
 
-QueryBuilder.prototype.where = function () {
-  this._appendQuery('WHERE 1=1', true);
-  return this;
-};
+
 
 QueryBuilder.prototype.having = function () {
   this._appendQuery('HAVING 1=1', true);
@@ -298,6 +295,6 @@ QueryBuilder.prototype.query = async function (pg) {
   return record;
 };
 
-module.exports = function (obj) {
-  obj.QueryBuilder = QueryBuilder;
+module.exports =  {
+  QueryBuilder,
 };
