@@ -3,7 +3,7 @@ const constants = rootRequire('constants');
 
 const payeeSchema = Joi.object().keys({
   payee_id: Joi.string().required(),
-  full_name: Joi.string().required(),
+  full_name: Joi.string().optional().allow(''),
   cust_id: Joi.string().required(),
   alias: Joi.string().optional().allow(''),
   email: Joi.string(),

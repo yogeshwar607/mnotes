@@ -1,6 +1,8 @@
 const Boom = require('boom');
 const bcrypt = require('bcrypt');
-const { QueryBuilder } = require('./query.builder');
+const {
+    QueryBuilder
+} = require('./query.builder');
 
 const {
     database

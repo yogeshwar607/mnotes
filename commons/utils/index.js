@@ -267,7 +267,7 @@ function getFullName({
   if (lastName) {
     fullName.push(lastName);
   }
-  return fullName.length > 0 ? fullName.join(' ') : null;
+  return fullName.length > 0 ? fullName.join(' ') : '';
 }
 
 function getNameObj(inputName) {

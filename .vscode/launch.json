@@ -18,6 +18,7 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/index.js",
+            "console": "internalConsole",
         }
     ]
 }
