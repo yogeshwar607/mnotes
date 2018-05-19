@@ -11,8 +11,6 @@ const crypto = require('crypto');
 
 useragent(true);
 
-
-
 function isSpecialChar(str, withAmpersand = true) {
   const re = withAmpersand ? /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\':<>\?]/g : /[~`!#$%\^*+=\-\[\]\\';,/{}|\\':<>\?]/g
   const _isSpecialChar = re.test(str);

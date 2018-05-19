@@ -1,5 +1,6 @@
 const Boom = require('boom');
 const bcrypt = require('bcrypt');
+const QueryBuilder = require('./query.builder');
 
 const {
     database
@@ -320,5 +321,8 @@ module.exports = {
     upsert,
     pgDelete,
     decryptComparePassword,
-    encryptPassword
+    encryptPassword,
+    schemaName,
+    QueryBuilder,
+    
 };

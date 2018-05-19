@@ -1,4 +1,10 @@
 const uuidv4 = require('uuid/v4');
+const Joi = require('joi');
+const Boom = require('boom');
+
+const { getTableName} = rootRequire('commons').TABLES;
+const tableName = getTableName('payees');
+
 const {
     insert,
     bulkInsert,
@@ -70,13 +76,13 @@ async function logic({
 
         // cleaning object 
         const payeeObj = trimObject(enrichpayeeObj(body));
-        // const {
-        //     error
-        // } = Joi.validate(payeeObj, payeeJoiSchema.payeeSchema, {
-        //     abortEarly: false
-        // });
+        const {
+            error
+        } = Joi.validate(payeeObj, payeeJoiSchema.payeeSchema, {
+            abortEarly: false
+        });
 
-        // if (error) throw Boom.badRequest(getErrorMessages(error));
+        if (error) throw Boom.badRequest(getErrorMessages(error));
 
         /** Need to implement atomicity */
         /** ========================== BEGIN QUERY =============================== */
@@ -87,7 +93,7 @@ async function logic({
             rows: payee
         } = await insert({
             client,
-            tableName: 'payees',
+            tableName: tableName,
             data: payeeObj,
             returnClause: ['payee_id'],
         });

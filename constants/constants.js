@@ -3,6 +3,87 @@ const envConfig = require('nconf');
 const NODE_ENV = envConfig.get("NODE_ENV") || 'development';
 
 module.exports = {
+  get ROUTING_CODE_TYPE(){ 
+    return [
+    'SWIFT',
+    'IFSC',
+    'SORT CODE',
+    'ACH CODE',
+    'BRANCH CODE',
+    'BSB CODE',
+    'BANK CODE',
+    'LOCATION ID',
+  ]
+},
+  get COUNTRIES (){
+   return [
+      'IN',
+      'AU',
+      'BE',
+      'SG',
+      'HK',
+      'US',
+      'MY',
+      'CN',
+      'JP',
+      'BD',
+      'DE',
+      'PH',
+      'TH',
+      'GB',
+      'ID',
+      'LK',
+      'TW',
+      // 'EU',
+      'MO',
+      'VN',
+      'NP',
+      'NZ',
+      'BH',
+      'BG',
+      'CA',
+      'HR',
+      'CZ',
+      'DK',
+      'AE',
+      'HU',
+      'IL',
+      'KW',
+      'MX',
+      'NO',
+      'OM',
+      'PL',
+      'QA',
+      'RO',
+      'SA',
+      'ZA',
+      'SE',
+      'CH',
+      'IE',
+      'FI',
+      'KR',
+      'SK',
+      'PG',
+      'KH',
+      'AT',
+      'CY',
+      'FR',
+      'GR',
+      'IT',
+      'LA',
+      'LI',
+      'LT',
+      'LU',
+      'MT',
+      'NL',
+      'PK',
+      'PT',
+      'PR',
+      'SC',
+      'SI',
+      'ES',
+    ]
+  },
   get TRULIOO_URL() {
     if (NODE_ENV === 'production') {
       return '';
@@ -237,5 +318,10 @@ module.exports = {
       LKRUSD: 'LKRUSD=R',
       LKRTWD: 'LKRTWD=R',
     };
+  },
+  get TABLE_NAME(){
+    return {
+      payees:'payees'
+    }
   }
 };
