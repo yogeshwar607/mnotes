@@ -85,7 +85,7 @@ async function logic({
         const payeeObj = trimObject(enrichpayeeObj(body));
         const {
             error
-        } = Joi.validate(payeeObj, payeeJoiSchema.payeeSchema, {
+        } = Joi.validate(payeeObj, payeeJoiSchema.createPayeeSchema, {
             abortEarly: false
         });
 

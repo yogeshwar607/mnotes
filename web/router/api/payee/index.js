@@ -5,7 +5,7 @@ const getPaginatedPayees = require('./pagination.handler');
 
 module.exports = (router) => {
     router.get('/payee/get/:id', getPayee);
-    router.get('/payee/pagination',getPaginatedPayees);
+    router.post('/payee/pagination',getPaginatedPayees);
     router.post('/payee/create', createPayee);
-    router.post('/payee/delete', updatePayee);
+    router.post('/payee/update/:id', updatePayee);
 };

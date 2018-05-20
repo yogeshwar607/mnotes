@@ -30,9 +30,10 @@ QueryBuilder.prototype._appendTotalQuery = function (query) {
 };
 
 QueryBuilder.prototype._computeSkip = function (limit, page) {
-  const _limit = limit || DEFAULT_LIMIT;
-  const _page = page || DEFAULT_PAGE;
-  return (_page - 1) * _limit;
+  // const _limit = limit || DEFAULT_LIMIT;
+  // const _page = page || DEFAULT_PAGE;
+  // return (_page - 1) * _limit;
+  return page;
 };
 
 QueryBuilder.prototype._generateColumns = function (_columns) {
@@ -265,7 +266,7 @@ QueryBuilder.prototype.formatPaginationResponse = function (filteredData, totalR
   return {
     recordsTotal: totalRecords[0].count || 0,
     recordsFiltered: filteredData.length || 0,
-    records: filteredData || [],
+    data: filteredData || [],
   };
 };
 
