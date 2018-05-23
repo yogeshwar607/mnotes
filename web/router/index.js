@@ -25,7 +25,7 @@ require('./api/userDataVerification')(router);
 require('./api/profile')(router);
 require('./api/payee')(router);
 require('./api/transaction')(router);
-
+require('./api/rates')(router);
 
 
 /**

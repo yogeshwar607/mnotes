@@ -109,6 +109,26 @@ module.exports = {
       return /[\s\S]*/;
     }
   },
+  
+  get REUTERS_TOKEN_URL() {
+    if (NODE_ENV === 'production') {
+      return 'https://api.rkd.reuters.com/api/TokenManagement/TokenManagement.svc/REST/Anonymous/TokenManagement_1/CreateServiceToken_1';
+    }
+    return 'https://api.rkd.reuters.com/api/TokenManagement/TokenManagement.svc/REST/Anonymous/TokenManagement_1/CreateServiceToken_1';
+  },
+  get REUTERS_RATE_URL() {
+    if (NODE_ENV === 'production') {
+      return 'http://api.rkd.reuters.com/api/Quotes/Quotes.svc/REST/Quotes_1/RetrieveItem_3';
+    }
+    return 'http://api.rkd.reuters.com/api/Quotes/Quotes.svc/REST/Quotes_1/RetrieveItem_3';
+  },
+  get REUTERS_RATE_FIELDS() {
+    return 'SCALING:CF_LAST:CF_CURRENCY:CF_BID';
+  },
+  get MARGIN() {
+    return 0.25;
+  },
+  
   get CURRENCY_PAIR() {
     return {
       EURHKD: 'EURHKD=X',
@@ -137,18 +157,41 @@ module.exports = {
       USDJPY: 'JPY=X',
       USDIDR: 'IDR=X',
       USDVND: 'VND=X',
+      USDBHD: 'BHD=X',
+      USDBGN: 'BGN=X',
+      USDCAD: 'CAD=X',
+      USDKWD: 'KWD=X',
+      USDHRK: 'HRK=X',
+      USDCZK: 'CZK=X',
+      USDDKK: 'DKK=X',
+      USDAED: 'AED=X',
+      USDHUF: 'HUF=X',
+      USDILS: 'ILS=X',
+      USDCHF: 'CHF=X',
+      USDSEK: 'SEK=X',
+      USDZAR: 'ZAR=X',
+      USDSAR: 'SAR=X',
+      USDRON: 'RON=X',
+      USDQAR: 'QAR=X',
+      USDPLN: 'PLN=X',
+      USDOMR: 'OMR=X',
+      USDNOK: 'NOK=X',
+      USDMXN: 'MXN=X',
+      USDBDT: 'BDT=X',
+      USDNPR: 'NPR=X',
+      NZDUSD: 'NZD=X',
       TWDHKD: 'TWDHKD=X',
       TWDMYR: 'TWDMYR=R',
       TWDJPY: 'TWDJPY=X',
       TWDTHB: 'TWDTHB=R',
       TWDIDR: 'TWDIDR=R',
       TWDSGD: 'TWDSGD=X',
-      TWDGBP: 'TWDGBP=X',
       TWDINR: 'TWDINR=R',
       TWDCNY: 'TWDCNY=R',
       TWDPHP: 'TWDPHP=R',
       TWDUSD: 'TWDUSD=R',
       TWDLKR: 'TWDLKR=R',
+      TWDGBP: 'TWDGBP=R',
       HKDMOP: 'HKDMOP=R',
       HKDMYR: 'HKDMYR=R',
       HKDJPY: 'HKDJPY=R',
@@ -251,9 +294,9 @@ module.exports = {
       CNYIDR: 'CNYIDR=R',
       CNYSGD: 'CNYSGD=R',
       CNYGBP: 'CNYGBP=R',
-      CNYINR: 'CNYINR=X',
+      CNYINR: 'CNYINR=R',
       CNYPHP: 'CNYPHP=R',
-      CNYUSD: 'CNYUSD=X',
+      CNYUSD: 'CNYUSD=R',
       CNYLKR: 'CNYLKR=R',
       CNYTWD: 'CNYTWD=R',
       PHPHKD: 'PHPHKD=R',
@@ -317,6 +360,11 @@ module.exports = {
       LKRPHP: 'LKRPHP=R',
       LKRUSD: 'LKRUSD=R',
       LKRTWD: 'LKRTWD=R',
+      USDKRW: 'KRW=X',
+      AUDUSD: 'AUD=X',
+      USDAUD: 'USDAUD=R',
+      AUDHKD: 'AUDHKD=R',
+      HKDAUD: 'HKDAUD=R',
     };
   },
   get TABLE_NAME(){
