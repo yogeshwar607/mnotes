@@ -43,6 +43,10 @@ const pool = new Pool({
   
 })
 
+// user : 
+
+// 
+
 // const pool = new Pool({
 //   user: config.get('PGUSER'),
 //   host: config.get('PGHOST'),

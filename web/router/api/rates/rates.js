@@ -1,4 +1,6 @@
-const { reutersRate } = rootRequire('service');
+const {
+  reutersRate
+} = rootRequire('service');
 const constants = rootRequire('constants');
 const co = require('co');
 
@@ -41,12 +43,31 @@ async function getReutersRate(currencies) {
   return filteredReutersResult;
 }
 
-async function logic({body}) {
+async function logic({
+  body
+}) {
   try {
     const currencyPairArray = body && body.currencyPairs ? body.currencyPairs : [];
-    if (!currencyPairArray.length) return { success: false, message: 'Please send currency pairs in format - [{sourceCurrency:USD,destinationCurrency:EUR}]' };
+    if (!currencyPairArray.length) return {
+      success: false,
+      message: 'Please send currency pairs in format - [{sourceCurrency:USD,destinationCurrency:EUR}]'
+    };
     const reutersRates = await getReutersRate(currencyPairArray);
-    return { rates: reutersRates };
+
+    return {
+      rates: {
+        INRSGD: {
+          "destinationCurrency": "INR",
+          "fxRate": 50.996,
+          "sourceCurrency": "SGD"
+        },
+        SGDINR: {
+            destinationCurrency: "SGD",
+            fxRate: 0.02,
+            sourceCurrency: "INR"
+        }
+      }
+    }
   } catch (e) {
     logger.error(e);
     throw e;
@@ -54,14 +75,14 @@ async function logic({body}) {
 }
 
 function handler(req, res, next) {
-    logic(req)
-        .then(data => {
-            res.json({
-                success: true,
-                data,
-            });
-        })
-        .catch(err => next(err));
+  logic(req)
+    .then(data => {
+      res.json({
+        success: true,
+        data,
+      });
+    })
+    .catch(err => next(err));
 }
 
 module.exports = handler;
