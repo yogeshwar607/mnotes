@@ -41,3 +41,43 @@ WITH(
 );
 ALTER TABLE "Remittance".payees
 OWNER TO postgres;
+
+
+-- Table: "Remittance".customer
+
+-- DROP TABLE "Remittance".customer;
+
+CREATE TABLE "Remittance".customer
+(
+    registration_id uuid NOT NULL,
+    email character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    password character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    source character varying(20) COLLATE pg_catalog."default",
+    type character varying(20) COLLATE pg_catalog."default",
+    is_email_verified boolean,
+    email_verified_on timestamp(3) without time zone,
+    is_otp_verified boolean DEFAULT false,
+    otp_verified_on timestamp(3) with time zone,
+    is_transfer_activated boolean DEFAULT false,
+    transfer_activated_on timestamp(3) with time zone,
+    is_account_blocked boolean DEFAULT false,
+    is_transaction_blocked boolean DEFAULT false,
+    last_logged_in timestamp(3) with time zone,
+    created_on timestamp(3) with time zone,
+    modified_on timestamp(3) with time zone,
+    modified_by character varying(100) COLLATE pg_catalog."default",
+    mobile_numer character varying(20) COLLATE pg_catalog."default",
+    CONSTRAINT customer1_pkey PRIMARY KEY (registration_id),
+    UNIQUE (email,mobile_number),
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "Remittance".customer
+    OWNER to postgres;
+
+COMMENT ON COLUMN "Remittance".customer.modified_on
+    IS '
+';

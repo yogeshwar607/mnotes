@@ -1,12 +1,21 @@
 const Boom = require('boom');
+const Joi = require('joi');
 const nodemailer = require('nodemailer');
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
-
+const {
+    getTableName
+} = rootRequire('commons').TABLES;
+const tableName = getTableName('customer');
 
 const {
-    query: pgQuery,
+    customerJoiSchema
+} = rootRequire('commons').SCHEMA;
+
+const {
+    insert,
+    getClient,
     encryptPassword,
 } = rootRequire('db');
 
@@ -15,76 +24,77 @@ const {
     getErrorMessages
 } = rootRequire('commons').UTILS;
 
+function enrichCustomerObj(body){
+    return {
+        email:body.email,
+        password:body.password, 
+        source:body.source, 
+        type:body.type,
+        is_email_verified:body.is_email_verified, 
+        is_otp_verified:body.is_otp_verified,
+        is_transfer_activated:body.is_transfer_activated,
+        is_account_blocked:body.is_account_blocked, 
+        is_transaction_blocked:body.is_transaction_blocked,
+        registration_id: body.registrationId
+    }
+}
 
 async function logic({
     body,
     context,
     params
 }) {
+    const client = await getClient();
+    logger.info('client fetched');
     try {
+       
         let password = await encryptPassword(body.password);
         let registrationId = uuidv4();
-      
-        let values = [body.email, password, body.source, body.type,
-            body.is_email_verified, body.is_otp_verified,
-            body.is_transfer_activated,
-            body.is_account_blocked, body.is_transaction_blocked,
-            body.modified_by, registrationId
-        ];
-    
-            const text = 'INSERT INTO "Remittance".customer(' +
-            'email, password, source, type, is_email_verified,' +
-            'is_otp_verified, is_transfer_activated, ' +
-            'is_account_blocked, is_transaction_blocked, ' +
-            'modified_by,registration_id) ' +
-            'VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)';
-       
+
+        // adding password and registrationId to body object
+        body['password'] = password;
+        body['registrationId'] = registrationId;
+
+        // cleaning object 
+        const customerObj = trimObject(enrichCustomerObj(body));
         const {
-            rows: result
-        } = await pgQuery(text, values);
+            error
+        } = Joi.validate(customerObj, customerJoiSchema.createCustomerSchema, {
+            abortEarly: false
+        });
 
+        if (error) throw Boom.badRequest(getErrorMessages(error));
 
-     //   await sendMail(body.email);
-        let x = mock(registrationId); // mock function to generate values
-        return x;
+        /** Need to implement atomicity */
+        /** ========================== BEGIN QUERY =============================== */
+        await client.query('BEGIN');
+        logger.info('client BEGIN');
+
+        /** Inserting the data into payee table */
+        const {
+            rows: customer
+        } = await insert({
+            client,
+            tableName: tableName,
+            data: customerObj,
+            returnClause: ['registration_id'],
+        });
+
+        /** =========================== COMMIT QUERY ============================= */
+        await client.query('COMMIT');
+        logger.info('client commited');
+        return customer;
+
     } catch (e) {
+        await client.query('ROLLBACK');
         logger.error(e);
         throw e;
+    } finally {
+        client.release();
+        logger.info('client released in add payee');
     }
 }
 
-function mock(registrationId) {
-    let z = Math.floor(Math.random() * 100);  
-    let y = z % 2;
-    let obj = {};
-    if (y === 0) {
-        obj.id= registrationId;
-    } else {
-
-        let a = Math.floor(Math.random() * 100);  
-        let b = a % 2;
-
-        if (b === 0) {
-            obj.msg = "email already exists"
-            
-        } else {
-            obj.msg = "mobile number already exists"
-        }
-    }
-    return obj;
-}
-
-function handler(req, res, next) {
-
-    logic(req)
-        .then(data => {
-            res.json({
-                success: true,
-                data,
-            });
-        })
-        .catch(err => next(err));
-}
 async function sendMail(email) {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -120,7 +130,16 @@ async function sendMail(email) {
             // res.json({ yo: info.response });
         };
     });
+}
 
-
+function handler(req, res, next) {
+    logic(req)
+        .then(data => {
+            res.json({
+                success: true,
+                data,
+            });
+        })
+        .catch(err => next(err));
 }
 module.exports = handler;

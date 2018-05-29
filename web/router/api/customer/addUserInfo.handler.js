@@ -117,9 +117,7 @@ function mock() {
     return obj;
 }
 
-
 function handler(req, res, next) {
-
     logic(req)
         .then(data => {
             res.json({
@@ -129,4 +127,5 @@ function handler(req, res, next) {
         })
         .catch(err => next(err));
 }
+
 module.exports = handler;

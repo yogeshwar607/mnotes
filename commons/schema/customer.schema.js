@@ -9,9 +9,7 @@ const loginSchema = Joi.object().keys({
 });
 
 const addUserInfoSchema = Joi.object().keys({
-
   id: Joi.string().required(),
-
   first_name: Joi.string().required(),
   middle_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -31,10 +29,23 @@ const addUserInfoSchema = Joi.object().keys({
   type_of_industry: Joi.string().required(),
   is_dual_citizen: Joi.bool().required(),
   country_of_residence: Joi.string().required()
+});
 
+const createCustomerSchema = Joi.object().keys({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  source: Joi.string().required(),
+  type: Joi.string().required(),
+  is_email_verified: Joi.bool().optional(),
+  is_otp_verified: Joi.bool().optional(),
+  is_transfer_activated: Joi.bool().optional(),
+  is_account_blocked: Joi.bool().optional(),
+  is_transaction_blocked: Joi.bool().optional(),
+  registration_id: Joi.string().required(),
 });
 
 module.exports = {
   loginSchema,
-  addUserInfoSchema
+  addUserInfoSchema,
+  createCustomerSchema,
 };

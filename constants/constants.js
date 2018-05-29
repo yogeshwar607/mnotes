@@ -367,9 +367,5 @@ module.exports = {
       HKDAUD: 'HKDAUD=R',
     };
   },
-  get TABLE_NAME(){
-    return {
-      payees:'payees'
-    }
-  }
+ 
 };

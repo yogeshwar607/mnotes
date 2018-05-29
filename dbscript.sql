@@ -114,6 +114,7 @@ CREATE TABLE "Remittance".customer
   created_on timestamp(3) with time zone,
   modified_on timestamp(3) with time zone, -- 
   modified_by character varying(100),
+  UNIQUE (email),
   CONSTRAINT customer1_pkey PRIMARY KEY (registration_id)
 )
 WITH (

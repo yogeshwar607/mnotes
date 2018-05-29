@@ -2,6 +2,7 @@
  const schemaName = '"Remittance".'
 const tables = {
     payees:'payees',
+    customer:'customer',
 }
 
 function getTableName (key) {

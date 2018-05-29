@@ -50,7 +50,7 @@ async function logic({
         }); // send it true for pagination
 
         qb.select(columns)
-            .selectTotal('count(*)')
+           // .selectTotal('count(*)')
             .from(tableName)
 
         qb.where(); // 
@@ -63,17 +63,21 @@ async function logic({
         const {
             rows: result
         } = await qb.query(pg);
-        
-        return result;
 
+        return result;
     } catch (e) {
         throw e;
     }
 }
 
 function handler(req, res, next) {
-    logic(req).then((data) => {
-        res.json(data);
-    }).catch(err => next(err));
+    logic(req)
+        .then(data => {
+            res.json({
+                success: true,
+                data,
+            });
+        })
+        .catch(err => next(err));
 }
 module.exports = handler;
