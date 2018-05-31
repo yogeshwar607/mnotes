@@ -38,13 +38,7 @@ async function logic({
     try {
         if (!params.id) return Boom.badRequest(`${'customer'} id is not present`);
         let custId = params.id
-        // let values = [custId, true];
-        // const text = 'SELECT * FROM "Remittance".payees where cust_id = $1 AND is_active = $2  ORDER BY full_name DESC';
-        // const {
-        //     rows: result
-        // } = await pgQuery(text, values);
-        // return result;
-
+        
         const qb = new QueryBuilder({
             buildTotalQuery: true
         }); // send it true for pagination

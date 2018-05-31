@@ -8,6 +8,7 @@ const config = require('nconf');
 // const geoip = require('geoip-lite');
 const useragent = require('useragent');
 const crypto = require('crypto');
+const speakeasy = require('speakeasy');
 
 useragent(true);
 
@@ -397,7 +398,7 @@ function addDays(date, days) {
 function postgresDateString(dateString, inputFormat) {
   if (dateString) {
     const _inputFormat = inputFormat || 'DD/MM/YYYY';
-    return moment(dateString, _inputFormat).format('YYYY-MM-DD');
+    return moment(dateString, _inputFormat).format('YYYY-MM-DD HH:mm:ss.SSSS');
   }
   return null;
 }
@@ -471,6 +472,40 @@ function getUpdateSetClause(obj, counter) {
   return result.join(',');
 }
 
+/* token related functions */
+
+function generateToken({
+  secret
+}) {
+  // Generate a time-based token based on the base-32 key.
+  // HOTP (counter-based tokens) can also be used if `totp` is replaced by
+  return speakeasy.totp({
+    secret: secret,
+    encoding: 'base32'
+  });
+}
+
+function verifyToken({
+  token,
+  secret
+}) {
+  // Verify a given token is within 3 time-steps (+/- 4 minutes) from the server // time-step.
+  return speakeasy.totp.verify({
+    secret: secret,
+    encoding: 'base32',
+    token: token,
+    window: 12,
+    step: 30
+  });
+}
+
+function generateSecret({
+  length
+}) {
+  return speakeasy.generateSecret({
+    length: length
+  });
+}
 
 module.exports = {
   isSpecialChar,
@@ -519,4 +554,7 @@ module.exports = {
   getAddressFromObj,
   getDeviceType,
   removeSpaceFromString,
+  generateToken,
+  verifyToken,
+  generateSecret
 };

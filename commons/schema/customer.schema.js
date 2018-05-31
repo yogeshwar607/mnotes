@@ -34,6 +34,7 @@ const addUserInfoSchema = Joi.object().keys({
 const createCustomerSchema = Joi.object().keys({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
+  mobile_number:  Joi.string().required(),
   source: Joi.string().required(),
   type: Joi.string().required(),
   is_email_verified: Joi.bool().optional(),

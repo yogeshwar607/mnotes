@@ -65,18 +65,7 @@ async function logic({
         });
         if (error) throw new ValidationError(getErrorMessages(error));
 
-        // let obj = {
-        //     "vregistration_id": body.id,
-        //     "vis_otp_verified": body.vis_otp_verified,
-        //     "votp_verified_on": Date.now() ||body.votp_verified_on,
-        //     "vmodified_by": body.data.vmodified_by
-        // };
-        // console.log(db_query(obj));
-        // let c = await paramQuery(db_query(obj));
-
-        // return c;
-
-        return mock()
+      
 
     } catch (e) {
         logger.error(e);

@@ -35,6 +35,7 @@ function enrichCustomerObj(body){
         is_transfer_activated:body.is_transfer_activated,
         is_account_blocked:body.is_account_blocked, 
         is_transaction_blocked:body.is_transaction_blocked,
+        mobile_number : body.mobile_number,
         registration_id: body.registrationId
     }
 }

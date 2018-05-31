@@ -42,6 +42,19 @@ WITH(
 ALTER TABLE "Remittance".payees
 OWNER TO postgres;
 
+CREATE TABLE "Remittance".otp_verification_failed_attempt(
+    registration_id uuid NOT NULL,
+    mobile_number character varying(20),
+    verification_failed_on timestamptz,
+)
+WITH(
+    OIDS = FALSE
+);
+ALTER TABLE "Remittance".otp_verification_failed_attempt
+OWNER TO postgres;
+
+
+
 
 -- Table: "Remittance".customer
 
@@ -81,3 +94,13 @@ ALTER TABLE "Remittance".customer
 COMMENT ON COLUMN "Remittance".customer.modified_on
     IS '
 ';
+
+create table otp_verification
+(
+  cust_id                uuid not null,
+  mobile_number          varchar(20),
+  verification_failed_on timestamp(3) with time zone,
+  otp_secret             varchar(50),
+  created_on             timestamp with time zone default now()
+);
+
