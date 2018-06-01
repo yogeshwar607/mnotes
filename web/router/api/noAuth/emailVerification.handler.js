@@ -2,6 +2,7 @@ const { query, paramQuery } = rootRequire('commons').DATABASE;
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = rootRequire('config').server;
 
+
 function db_query(vregistration_id) {
     return 'SELECT * from  "Remittance".email_verification(\'' + vregistration_id + '\')';
 }

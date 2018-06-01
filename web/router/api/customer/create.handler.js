@@ -4,11 +4,16 @@ const nodemailer = require('nodemailer');
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
+const nconf = require('nconf');
+const baseUrl = nconf.get('baseUrl');
+
+const {confirmEmailTemplate} = rootRequire('templates');
 const {
     getTableName
 } = rootRequire('commons').TABLES;
 const tableName = getTableName('customer');
 
+const {sendMail} = rootRequire('service');
 const {
     customerJoiSchema
 } = rootRequire('commons').SCHEMA;
@@ -30,12 +35,12 @@ function enrichCustomerObj(body){
         password:body.password, 
         source:body.source, 
         type:body.type,
+        mobile_number : body.mobile_number,
         is_email_verified:body.is_email_verified, 
         is_otp_verified:body.is_otp_verified,
         is_transfer_activated:body.is_transfer_activated,
         is_account_blocked:body.is_account_blocked, 
         is_transaction_blocked:body.is_transaction_blocked,
-        mobile_number : body.mobile_number,
         registration_id: body.registrationId
     }
 }
@@ -47,9 +52,8 @@ async function logic({
 }) {
     const client = await getClient();
     logger.info('client fetched');
-    try {
-       
-        let password = await encryptPassword(body.password);
+    
+    let password = await encryptPassword(body.password);
         let registrationId = uuidv4();
 
         // adding password and registrationId to body object
@@ -66,6 +70,8 @@ async function logic({
 
         if (error) throw Boom.badRequest(getErrorMessages(error));
 
+    try {
+       
         /** Need to implement atomicity */
         /** ========================== BEGIN QUERY =============================== */
         await client.query('BEGIN');
@@ -83,7 +89,7 @@ async function logic({
 
         /** =========================== COMMIT QUERY ============================= */
         await client.query('COMMIT');
-        logger.info('client commited');
+        logger.info('client commited in customer create.handler');
         return customer;
 
     } catch (e) {
@@ -92,45 +98,18 @@ async function logic({
         throw e;
     } finally {
         client.release();
-        logger.info('client released in add payee');
+        logger.info('client released in create customer');
+
+         // send email to user for verification
+         let token = "cxcxcxcxcxcxcxcxcxcxcxcxcxcx"
+         let url = `/email/verify/${token}`
+         const templateOptions = {
+             url:`baseUrl${url}`
+         }
+         const template = confirmEmailTemplate({templateOptions})
+         sendMail([customerObj.email], 'Xwapp email verification', template, { contentType: 'text/html' }, ['yogeshwar@instigence.com']);
+     
     }
-}
-
-async function sendMail(email) {
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'yogeshwar607@gmail.com', // Your email id
-            pass: 'marjavamitjava' // Your password
-        }
-    });
-
-    const payloads = {
-        // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
-        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30),
-        sub: email,
-    };
-    const token = jwt.sign(payloads, config.jwtSecret);
-
-    let text = 'Click on the link to verify: ' + "http://localhost:4700/api/v1/email/verify/" + token;
-
-    let mailOptions = {
-        from: 'yogeshwar607@gmail.com', // sender address
-        to: email, // list of receivers
-        subject: 'Remi: Email Verify', // Subject line
-        text: text
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-            // res.json({ yo: 'error' });
-        } else {
-            console.log('Message sent: ' + info.response);
-            return true;
-            // res.json({ yo: info.response });
-        };
-    });
 }
 
 function handler(req, res, next) {
