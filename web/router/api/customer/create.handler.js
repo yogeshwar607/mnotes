@@ -104,7 +104,7 @@ async function logic({
          let token = "cxcxcxcxcxcxcxcxcxcxcxcxcxcx"
          let url = `/email/verify/${token}`
          const templateOptions = {
-             url:`baseUrl${url}`
+             url:`${baseUrl}${url}`
          }
          const template = confirmEmailTemplate({templateOptions})
          sendMail([customerObj.email], 'Xwapp email verification', template, { contentType: 'text/html' }, ['yogeshwar@instigence.com']);
