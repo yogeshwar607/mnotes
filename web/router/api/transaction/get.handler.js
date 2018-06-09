@@ -1,39 +1,66 @@
-const { query, paramQuery } = rootRequire('commons').DATABASE;
+const Boom = require('boom');
+const Joi = require('joi');
 
-function db_query(vis_completed, vis_cancelled, vis_pending) {
-    return 'SELECT * from  "Remittance".get_transaction(' + vis_completed + ',' + vis_cancelled + ',' + vis_pending + ')';
-}
+const {
+    getTableName
+} = rootRequire('commons').TABLES;
+const tableName = getTableName('transaction');
+const payeeTableName = getTableName('payees');
 
-async function logic({ context, params }) {
+const {
+    QueryBuilder,
+    database: pg,
+    query: pgQuery,
+} = rootRequire('db');
+
+const columns = {
+    full_name: "py.full_name",
+    payee_id: "tx.payee_id",
+    cust_id: "tx.cust_id",
+    transaction_number: "transaction_number",
+    from_currency: "from_currency",
+    to_currency: "to_currency",
+    from_amount: "from_amount",
+    to_amount: "to_amount",
+    source_of_fund: "source_of_fund",
+    reason_for_transfer: "reason_for_transfer",
+};
+
+async function logic({
+    query,
+    params,
+    body,
+}) {
     try {
+        if (!params.id) return Boom.badRequest(`${'customer'} id is not present`);
+        let custId = params.id
 
-        let vis_completed = [params.vis_completed];
-        let vis_pending = [params.vis_pending];
-        let vis_cancelled = [params.vis_cancelled];
+        const qb = new QueryBuilder({
+            buildTotalQuery: true
+        }); // send it true for pagination
 
-        if (vis_completed[0] == undefined) {
-            vis_completed[0] = false;
-        }
-        if (vis_cancelled[0] == undefined) {
-            vis_cancelled[0] = false;
-        }
-        if (vis_pending[0] == undefined) {
-            vis_pending[0] = false;
-        }
+        qb.select(columns)
+            // .selectTotal('count(*)')
+            .from(`${tableName} tx`)
+            .leftJoin(`${payeeTableName} py`)
+            .on(`py.payee_id = tx.payee_id`)
 
-        let c = await paramQuery(db_query(vis_completed, vis_cancelled, vis_pending));
+        qb.where(); // 
+        qb.and().is(columns.cust_id, custId); // fetch transactions
+        qb.orderBy(columns.transaction_number);
+        qb.order('DESC');
 
-        return c;
+        const {
+            rows: result
+        } = await qb.query(pg);
 
-
+        return result;
     } catch (e) {
-        logger.error(e);
         throw e;
     }
 }
 
 function handler(req, res, next) {
-
     logic(req)
         .then(data => {
             res.json({

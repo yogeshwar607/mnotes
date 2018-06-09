@@ -1,5 +1,5 @@
 const assert = require('assert');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const SALT_WORK_FACTOR = 10;
 

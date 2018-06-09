@@ -104,3 +104,51 @@ create table otp_verification
   created_on             timestamp with time zone default now()
 );
 
+create table "Remittance".transaction
+(
+  transaction_id                        uuid         not null
+    constraint transaction_pkey
+    primary key,
+  transaction_number                    varchar(100) not null,
+  from_currency                         varchar(15)  not null,
+  to_currency                           varchar(15)  not null,
+  from_amount                           numeric(18, 2),
+  to_amount                             numeric(18, 2),
+  fx_rate_offered                       numeric(18, 2),
+  fx_rate_actual                        numeric(18, 2),
+  fx_rate_bank                          numeric(18, 2),
+  fees                                  numeric(18, 2),
+  bank_fees                             numeric(18, 2),
+  discount                              numeric(18, 2),
+  coupon_code                           varchar(15),
+  bonus                                 numeric(18, 2),
+  savings                               numeric(18, 2),
+  is_referral_bonus                     boolean,
+  referral_code                         varchar(15),
+  source_of_fund                        varchar(30),
+  source_of_fund_other_description      varchar(100),
+  payee_id                              uuid,
+  reason_for_transfer                   varchar(30),
+  reason_for_transfer_other_description varchar(100),
+  payment_mode                          varchar(15),
+  transaction_created_on                timestamp with time zone,
+  payment_estimated_date                timestamp with time zone,
+  is_cancelled                          boolean,
+  is_otp_verified                       boolean,
+  status                                varchar(15),
+  is_completed                          boolean,
+  completed_on                          timestamp with time zone,
+  cancelled_on                          timestamp with time zone,
+  cancelled_by                          varchar(100),
+  cust_id                               uuid         not null,
+  created_by                            uuid,
+  modified_by                           uuid,
+  created_on                            timestamp with time zone,
+  modified_on                           timestamp with time zone
+)WITH(
+    OIDS = FALSE
+);
+ALTER TABLE "Remittance".transaction
+OWNER TO postgres;
+
+

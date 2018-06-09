@@ -1,6 +1,7 @@
 
  const schemaName = '"Remittance".'
 const tables = {
+    transaction:'transaction',
     payees:'payees',
     customer:'customer',
     otp_verification:'otp_verification',
