@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const constants = rootRequire('constants');
 
+
 const createTransactionSchema = Joi.object().keys({
 
     transaction_id:  Joi.string().required(),
@@ -30,7 +31,7 @@ const createTransactionSchema = Joi.object().keys({
     source_of_fund_other_description:Joi.string().optional().allow(''),
     reason_for_transfer:Joi.string().optional().allow(''),
     reason_for_transfer_other_description:Joi.string().optional().allow(''),
-
+    status:Joi.string().optional().valid(['tx01','tx02','tx03','tx04','tx05','tx06']),
 
     created_on: Joi.string().optional().allow(''),
     created_by: Joi.string().optional().allow(''),
@@ -38,8 +39,25 @@ const createTransactionSchema = Joi.object().keys({
     modified_on: Joi.string().optional().allow(''),
     modified_by: Joi.string().optional().allow(''),
 });
+const updateTransactionSchema = Joi.object().keys({
 
+    from_currency: Joi.string().optional(),
+    to_currency:Joi.string().optional(),
+
+    coupon_code:Joi.string().optional().allow(''),
+    is_referral_bonus:Joi.boolean().optional(),
+    referral_code:Joi.string().optional().allow(''),
+    source_of_fund:Joi.string().optional().allow(''),
+    source_of_fund_other_description:Joi.string().optional().allow(''),
+    reason_for_transfer:Joi.string().optional().allow(''),
+    reason_for_transfer_other_description:Joi.string().optional().allow(''),
+    status:Joi.string().optional().valid(['tx01','tx02','tx03','tx04','tx05','tx06']),
+
+    modified_on: Joi.string().optional().allow(''),
+    modified_by: Joi.string().optional().allow(''),
+});
 
 module.exports = {
     createTransactionSchema,
+    updateTransactionSchema,
 };

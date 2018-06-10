@@ -16,6 +16,7 @@ const columns = {
     full_name: "py.full_name",
     payee_id: "tx.payee_id",
     cust_id: "tx.cust_id",
+    transaction_id:"transaction_id",
     transaction_number: "transaction_number",
     from_currency: "from_currency",
     to_currency: "to_currency",
@@ -23,6 +24,7 @@ const columns = {
     to_amount: "to_amount",
     source_of_fund: "source_of_fund",
     reason_for_transfer: "reason_for_transfer",
+    status:"status"
 };
 
 function getSortColumnName(columns, order) {

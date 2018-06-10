@@ -8,7 +8,7 @@ const {
 const tableName = getTableName('transaction');
 
 const {
-    insert,
+    update,
     getClient
 } = rootRequire('db')
 const {
@@ -66,30 +66,31 @@ function enrichTransactionObj(body) {
 async function logic({
     body,
     context,
-    params
+    params,
+    query,
 }) {
     const client = await getClient();
     logger.info('client fetched');
     try {
-        // adding transaction id 
-        let transactionId = uuidv4();
-        // adding transaction_id to body
-        body['transaction_id'] = transactionId;
-        // generate transaction number 
-        let transactionNo = "XW"+Math.random();
-        body['transaction_number'] = transactionNo;
-        // add status
-        body['status'] = "tx01";
-
+        const transaction_id = params.id;
+        if (!transaction_id) return Boom.badRequest(`${'transaction'} id is not present`);
+      
         // cleaning object 
-        const transactionObj = trimObject(enrichTransactionObj(body));
+        const transactionObj = trimObject(body);
         const {
             error
-        } = Joi.validate(transactionObj, transactionJoiSchema.createTransactionSchema, {
+        } = Joi.validate(transactionObj, transactionJoiSchema.updateTransactionSchema, {
             abortEarly: false
         });
 
         if (error) throw Boom.badRequest(getErrorMessages(error));
+
+        const transactionWhereClause = {} ;
+        let length = Object.keys(transactionObj).length;
+
+        transactionWhereClause.text = `WHERE 1=1 AND transaction_id=$${length += 1}`;
+        transactionWhereClause.values = [transaction_id];
+
 
         /** Need to implement atomicity */
         /** ========================== BEGIN QUERY =============================== */
@@ -99,10 +100,11 @@ async function logic({
         /** Inserting the data into transaction table */
         const {
             rows: transaction
-        } = await insert({
+        } = await update({
             client,
             tableName: tableName,
             data: transactionObj,
+            whereClause:transactionWhereClause,
             returnClause: ['transaction_number'],
         });
 
