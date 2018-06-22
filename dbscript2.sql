@@ -95,14 +95,30 @@ COMMENT ON COLUMN "Remittance".customer.modified_on
     IS '
 ';
 
-create table otp_verification
+create table "Remittance".otp_verification
 (
   cust_id                uuid not null,
   mobile_number          varchar(20),
   verification_failed_on timestamp(3) with time zone,
-  otp_secret             varchar(50),
+  otp_secret             varchar(100),
   created_on             timestamp with time zone default now()
+)WITH(
+    OIDS = FALSE
 );
+ALTER TABLE "Remittance".otp_verification
+OWNER TO postgres;
+
+create table "Remittance".email_verification
+(
+  cust_id                uuid not null,
+  verification_failed_on timestamp(3) with time zone,
+  email_secret           varchar(100),
+  created_on             timestamp with time zone default now()
+)WITH(
+    OIDS = FALSE
+);
+ALTER TABLE "Remittance".email_verification
+OWNER TO postgres;
 
 create table "Remittance".transaction
 (

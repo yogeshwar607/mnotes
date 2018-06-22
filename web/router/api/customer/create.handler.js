@@ -1,19 +1,25 @@
 const Boom = require('boom');
-const Joi = require('joi');
 const nodemailer = require('nodemailer');
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
-const nconf = require('nconf');
-const baseUrl = nconf.get('baseUrl');
-
-const {confirmEmailTemplate} = rootRequire('templates');
+const Joi = require('joi');
+const envConfig = require('nconf');
+const baseUrl = envConfig.get('baseUrl');
+const {
+    jwtSecret
+    } = rootRequire('config').server;
+const {
+    confirmEmailTemplate
+} = rootRequire('templates');
 const {
     getTableName
 } = rootRequire('commons').TABLES;
 const tableName = getTableName('customer');
 
-const {sendMail} = rootRequire('service');
+const {
+    sendMail
+} = rootRequire('service');
 const {
     customerJoiSchema
 } = rootRequire('commons').SCHEMA;
@@ -26,21 +32,44 @@ const {
 
 const {
     trimObject,
-    getErrorMessages
+    getErrorMessages,
+    postgresDateString,
 } = rootRequire('commons').UTILS;
 
-function enrichCustomerObj(body){
+async function saveSecretToDb({
+    custId,
+    secret,
+}) {
+
+    const emailObj = {
+        cust_id: custId,
+        email_secret: secret,
+        created_on: postgresDateString(new Date()),
+    }
+    const tableName = getTableName('email_verification');
+    /** Inserting the data into  otp_verification table */
+    const {
+        rows: result
+    } = await insert({
+        tableName: tableName,
+        data: emailObj,
+    });
+    return result
+}
+
+
+function enrichCustomerObj(body) {
     return {
-        email:body.email,
-        password:body.password, 
-        source:body.source, 
-        type:body.type,
-        mobile_number : body.mobile_number,
-        is_email_verified:body.is_email_verified, 
-        is_otp_verified:body.is_otp_verified,
-        is_transfer_activated:body.is_transfer_activated,
-        is_account_blocked:body.is_account_blocked, 
-        is_transaction_blocked:body.is_transaction_blocked,
+        email: body.email,
+        password: body.password,
+        source: body.source,
+        type: body.type,
+        mobile_number: body.mobile_number,
+        is_email_verified: body.is_email_verified,
+        is_otp_verified: body.is_otp_verified,
+        is_transfer_activated: body.is_transfer_activated,
+        is_account_blocked: body.is_account_blocked,
+        is_transaction_blocked: body.is_transaction_blocked,
         registration_id: body.registrationId
     }
 }
@@ -52,26 +81,26 @@ async function logic({
 }) {
     const client = await getClient();
     logger.info('client fetched');
-    
+
     let password = await encryptPassword(body.password);
-        let registrationId = uuidv4();
+    let registrationId = uuidv4();
 
-        // adding password and registrationId to body object
-        body['password'] = password;
-        body['registrationId'] = registrationId;
+    // adding password and registrationId to body object
+    body['password'] = password;
+    body['registrationId'] = registrationId;
 
-        // cleaning object 
-        const customerObj = trimObject(enrichCustomerObj(body));
-        const {
-            error
-        } = Joi.validate(customerObj, customerJoiSchema.createCustomerSchema, {
-            abortEarly: false
-        });
+    // cleaning object 
+    const customerObj = trimObject(enrichCustomerObj(body));
+    const {
+        error
+    } = Joi.validate(customerObj, customerJoiSchema.createCustomerSchema, {
+        abortEarly: false
+    });
 
-        if (error) throw Boom.badRequest(getErrorMessages(error));
+    if (error) throw Boom.badRequest(getErrorMessages(error));
 
     try {
-       
+
         /** Need to implement atomicity */
         /** ========================== BEGIN QUERY =============================== */
         await client.query('BEGIN');
@@ -100,15 +129,31 @@ async function logic({
         client.release();
         logger.info('client released in create customer');
 
-         // send email to user for verification
-         let token = "cxcxcxcxcxcxcxcxcxcxcxcxcxcx"
-         let url = `/email/verify/${token}`
-         const templateOptions = {
-             url:`${baseUrl}${url}`
-         }
-         const template = confirmEmailTemplate({templateOptions})
-         sendMail([customerObj.email], 'Xwapp email verification', template, { contentType: 'text/html' }, ['yogeshwar@instigence.com']);
-     
+        const payloads = {
+            // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 15))
+            exp: envConfig.get("NODE_ENV") === 'production' ? Math.floor(Date.now() / 1000) + (60 * 15) : Math.floor(Date.now() / 1000) + (60 * 15),
+            sub: {
+                id: registrationId,
+                loginType: "customer"
+            }
+        };
+        const token = jwt.sign(payloads, jwtSecret);
+        let url = `/email/verify/${token}`
+        const templateOptions = {
+            url: `${baseUrl}${url}`
+        }
+        const template = confirmEmailTemplate({
+            templateOptions
+        })
+        try {
+            sendMail([customerObj.email], 'Xwapp email verification', template, {
+                contentType: 'text/html'
+            }, ['yogeshwar@instigence.com']);
+
+        } catch (e) {
+            logger.error(e);
+            throw e;
+        }
     }
 }
 

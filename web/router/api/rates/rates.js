@@ -2,7 +2,6 @@ const {
   reutersRate
 } = rootRequire('service');
 const constants = rootRequire('constants');
-const co = require('co');
 
 // function to filter reuters result array
 function filterReutersResultArray(reutersResult) {

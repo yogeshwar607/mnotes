@@ -5,6 +5,7 @@ const tables = {
     payees:'payees',
     customer:'customer',
     otp_verification:'otp_verification',
+    email_verification:'email_verification',
 }
 
 function getTableName (key) {

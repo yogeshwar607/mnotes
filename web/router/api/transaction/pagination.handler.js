@@ -79,7 +79,7 @@ async function logic({
     body,
 }) {
     try {
-        if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
+       // if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
         paginatedObj = getPaginationFilter(body);
 
         const qb = new QueryBuilder({
@@ -93,7 +93,25 @@ async function logic({
             .on(`py.payee_id = tx.payee_id`)
 
         qb.where(); // 
-        qb.and().is(columns.cust_id, query.cust_id);
+        if(query.cust_id){
+            qb.and().is(columns.cust_id, query.cust_id);
+        }
+        if(body.status){
+            qb.and().is(columns.status, body.status);
+        }
+        if(body.transaction_number){
+            qb.and().is(columns.transaction_number, body.transaction_number);
+        }
+        if(body.from_currency){
+            qb.and().is(columns.from_currency, body.from_currency);
+        }
+        if(body.to_currency){
+            qb.and().is(columns.to_currency, body.to_currency);
+        }
+        if(body.from_date||body.to_date){
+
+        }
+       
 
         qb.orderBy(paginatedObj.dbColumnName || columns.transaction_number);
         qb.order('DESC'); // paginatedObj.sortOrder ||
