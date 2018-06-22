@@ -80,10 +80,12 @@ function handler(req, res, next) {
 
     logic(req)
         .then(data => {
-            res.json({
-                success: true,
-                data,
-            });
+            // res.json({
+            //     success: true,
+            //     data,
+            // });
+            res.status(301).redirect("http://www.xwapp.com")
+
         })
         .catch(err => next(err));
 }

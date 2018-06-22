@@ -16,7 +16,7 @@ const columns = {
     full_name: "py.full_name",
     payee_id: "tx.payee_id",
     cust_id: "tx.cust_id",
-    transaction_id:"transaction_id",
+    transaction_id: "transaction_id",
     transaction_number: "transaction_number",
     from_currency: "from_currency",
     to_currency: "to_currency",
@@ -24,7 +24,7 @@ const columns = {
     to_amount: "to_amount",
     source_of_fund: "source_of_fund",
     reason_for_transfer: "reason_for_transfer",
-    status:"status"
+    status: "status"
 };
 
 function getSortColumnName(columns, order) {
@@ -79,7 +79,7 @@ async function logic({
     body,
 }) {
     try {
-       // if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
+        // if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
         paginatedObj = getPaginationFilter(body);
 
         const qb = new QueryBuilder({
@@ -93,27 +93,19 @@ async function logic({
             .on(`py.payee_id = tx.payee_id`)
 
         qb.where(); // 
-        if(query.cust_id){
-            qb.and().is(columns.cust_id, query.cust_id);
-        }
-        if(body.status){
-            qb.and().is(columns.status, body.status);
-        }
-        if(body.transaction_number){
-            qb.and().is(columns.transaction_number, body.transaction_number);
-        }
-        if(body.from_currency){
-            qb.and().is(columns.from_currency, body.from_currency);
-        }
-        if(body.to_currency){
-            qb.and().is(columns.to_currency, body.to_currency);
-        }
-        if(body.from_date||body.to_date){
+        if (query.cust_id) qb.and().is(columns.cust_id, query.cust_id); // check here for customer / admin
+        if (body.status) qb.and().is(columns.status, body.status);
+        if (body.transaction_number) qb.and().is(columns.transaction_number, body.transaction_number);
+        if (body.from_currency) qb.and().is(columns.from_currency, body.from_currency);
+        if (body.to_currency) qb.and().is(columns.to_currency, body.to_currency);
 
-        }
-       
+        if (query.from_date) qb.and().gte(columns.created_at, query.from_date, '::date');
+        if (query.to_date) qb.and().lte(columns.created_at, query.to_date, '::date');
 
-        qb.orderBy(paginatedObj.dbColumnName || columns.transaction_number);
+        if (body.from_amount) qb.and().gte(columns.from_amount, query.from_amount);
+
+
+            qb.orderBy(paginatedObj.dbColumnName || columns.transaction_number);
         qb.order('DESC'); // paginatedObj.sortOrder ||
 
         let x = paginatedObj.skip;
