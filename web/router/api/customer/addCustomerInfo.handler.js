@@ -1,10 +1,16 @@
 const Joi = require('joi');
+const Boom = require('boom');
 
 const {
-    query,
-    paramQuery,
-    decryptComparePassword
-} = rootRequire('commons').DATABASE;
+    getTableName
+} = rootRequire('commons').TABLES;
+const tableName = getTableName('individual_customer_detail');
+
+const {
+    insert,
+    getClient
+} = rootRequire('db')
+
 const {
     trimObject,
     getErrorMessages
@@ -12,13 +18,10 @@ const {
 const {
     customerJoiSchema
 } = rootRequire('commons').SCHEMA;
-const {
-    ValidationError
-} = rootRequire('commons').ERROR;
 
 function enrichAddUserInfoObj(body) {
     return {
-        id: body.id,
+        cust_id: body.id,
         first_name: body.first_name,
         middle_name: body.middle_name,
         last_name: body.last_name,
@@ -37,16 +40,9 @@ function enrichAddUserInfoObj(body) {
         net_worth: body.net_worth,
         type_of_industry: body.type_of_industry,
         is_dual_citizen: body.is_dual_citizen,
-        country_of_residence: body.country_of_residence
+        country_of_residence: body.country_of_residence,
+        country_of_transaction:body.country_of_transaction
     }
-}
-
-
-function db_query(obj) {
-    return 'SELECT * from  "Remittance".otp_verification(\'' +
-        obj.vregistration_id + '\',' + obj.vis_otp_verified + ',\'' + obj.votp_verified_on + '\',\'' +
-        obj.vmodified_by +
-        '\')';
 }
 
 async function logic({
@@ -54,7 +50,9 @@ async function logic({
     context,
     params
 }) {
-    console.log();
+    const client = await getClient();
+    logger.info('client fetched in addUserInfo');
+
     try {
         // cleaning object 
         const addUserInfoObj = trimObject(enrichAddUserInfoObj(body));
@@ -63,48 +61,39 @@ async function logic({
         } = Joi.validate(addUserInfoObj, customerJoiSchema.addUserInfoSchema, {
             abortEarly: false
         });
-        if (error) throw new ValidationError(getErrorMessages(error));
+        if (error) throw Boom.badRequest(getErrorMessages(error));
 
-      
+        /** Need to implement atomicity */
+        /** ========================== BEGIN QUERY =============================== */
+        await client.query('BEGIN');
+        logger.info('client BEGIN addUserInfo');
+
+        /** Inserting the data into payee table */
+        const {
+            rows: customer
+        } = await insert({
+            client,
+            tableName: tableName,
+            data: addUserInfoObj,
+            returnClause: ['cust_id'],
+        });
+
+        /** =========================== COMMIT QUERY ============================= */
+        await client.query('COMMIT');
+        logger.info('client commited in customer addUserInfo.handler');
+        return customer;
 
     } catch (e) {
+        await client.query('ROLLBACK');
         logger.error(e);
         throw e;
+    } finally {
+        client.release();
+        logger.info('client released in addUserInfo customer');
     }
+
 }
 
-function mock() {
-    let z = Math.floor(Math.random() * 100);
-    let y = z % 2;
-    let obj = {};
-    if (y === 0) {
-
-        let a = Math.floor(Math.random() * 100);
-        let b = a % 2;
-
-        if (b === 0) {
-            obj.msg = "added successfully"
-            obj.status = true
-        } else {
-            obj.msg = "added successfully"
-            obj.status = true
-        }
-    } else {
-
-        let a = Math.floor(Math.random() * 100);
-        let b = a % 2;
-
-        if (b === 0) {
-            obj.is_customer_exists = false;
-            obj.status = false
-            obj.msg = "provided id do not exists"
-        } else {
-            obj.msg = "added successfully"
-            obj.status = true
-        }
-    }
-    return obj;
-}
 
 function handler(req, res, next) {
     logic(req)

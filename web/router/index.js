@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { requestLogger, authorization } = require('../middleware');
+const { requestLogger, authorization ,routeGuard} = require('../middleware');
 
 requestLogger(router);
 
@@ -9,7 +9,7 @@ requestLogger(router);
 require('./api/noAuth')(router);
 
  //  authorization(router);
-
+ routeGuard(router);
 // secured components
 
 require('./api/user')(router);

@@ -11,6 +11,7 @@ const {
     insert,
     getClient
 } = rootRequire('db')
+
 const {
     payeeJoiSchema
 } = rootRequire('commons').SCHEMA;
@@ -74,7 +75,7 @@ async function logic({
     params
 }) {
     const client = await getClient();
-    logger.info('client fetched');
+    logger.info('client fetched create payee');
     try {
         // adding payee id 
         let payeeId = uuidv4();

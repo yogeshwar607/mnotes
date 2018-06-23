@@ -3,11 +3,12 @@ const handleError = require('./handleError.middleware');
 const authorization = require('./authorization.middleware');
 const requestLogger = require('./requestLogger.middleware');
 const multer = require('./multer.middleware');
-
+const routeGuard = require('./routeGuard.middleware')
 module.exports = {
   basic,
   handleError,
   authorization,
   requestLogger,
   multer,
+  routeGuard,
 };

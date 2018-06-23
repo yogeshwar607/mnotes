@@ -9,7 +9,7 @@ const loginSchema = Joi.object().keys({
 });
 
 const addUserInfoSchema = Joi.object().keys({
-  id: Joi.string().required(),
+  cust_id: Joi.string().required(),
   first_name: Joi.string().required(),
   middle_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -28,7 +28,9 @@ const addUserInfoSchema = Joi.object().keys({
   net_worth: Joi.number().required(),
   type_of_industry: Joi.string().required(),
   is_dual_citizen: Joi.bool().required(),
-  country_of_residence: Joi.string().required()
+  country_of_residence: Joi.string().required(),
+  country_of_transaction:Joi.string().required(),
+  mobile_number:  Joi.string().optional(),
 });
 
 const createCustomerSchema = Joi.object().keys({

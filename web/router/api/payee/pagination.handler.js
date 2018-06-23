@@ -5,6 +5,9 @@ const {
   getTableName
 } = rootRequire('commons').TABLES;
 const tableName = getTableName('payees');
+const {
+  getPaginationFilter,
+} = rootRequire('commons').UTILS
 
 const {
   QueryBuilder,
@@ -29,94 +32,55 @@ const columns = {
   routing_code_value_3: "routing_code_value_3"
 };
 
+async function logic({
+  query,
+  params,
+  body,
+  contex,
+}) {
+  const client = await getClient();
 
-function getSortColumnName(columns, order) {
-  if (columns && order) {
-    return columns[order[0]['column']]['name'];
-  }
-}
+  try {
 
-function getSortColumnOrder(order) {
-  if (order) {
-    return order[0]['dir'] === 'asc' ? 1 : -1;
-  }
-  // By default sort by updated_at in descending order
-  return -1;
-}
-
-// fetch data from query string and populate it to pagination filter
-function getPaginationFilter(body) {
-  const skip = parseInt(body.start, 10) || 0;
-  const limit = parseInt(body.length, 10) || 10;
-  const draw = parseInt(body.draw, 10);
-  const search = body.search;
-  const columns = body.columns;
-  const order = body.order;
-  const dbColumnName = getSortColumnName(columns, order) || body.defaultSortColumn;
-  const sortOrder = getSortColumnOrder(order) || body.defaultSortOrder;
-  const sort = {};
-  sort[dbColumnName] = sortOrder;
-  return {
-    skip,
-    limit,
-    sort,
-    draw,
-    search,
-    dbColumnName,
-    sortOrder
-  };
-}
-
-function getNoRecordsObject(query) {
-  return {
-    draw: parseInt(query.draw, 10),
-    recordsFiltered: 0,
-    recordsTotal: 0,
-    response: [],
-  };
-}
-
-  async function logic({
-    query,
-    params,
-    body,
-  }) {
-    try {
+    const filterObj = {}
+    if ( contex && contex.loginType === "customer") {
       if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
-      paginatedObj = getPaginationFilter(body);
-
-      const qb = new QueryBuilder({
-        buildTotalQuery: true
-      }); // send it true for pagination
-
-      qb.select(columns)
-        .selectTotal('count(*)')
-        .from(tableName)
-
-      qb.where(); // 
-      qb.and().is(columns.cust_id, query.cust_id);
-      if (query && query.active != 'all') {
-        qb.and().is(columns.is_active, true); // fetch payees which are active by default
-      }
-
-
-      qb.orderBy(paginatedObj.dbColumnName || columns.full_name);
-      qb.order( 'DESC'); // paginatedObj.sortOrder ||
-
-      let x = paginatedObj.skip ;
-      qb.limit(paginatedObj.limit);
-      qb.page(x);
-      const result = await qb.paginateQuery(pg);
-      
-      return result;
-    } catch (e) {
-      throw e;
+      filterObj.cust_id = query.cust_id;
     }
-  }
 
-  function handler(req, res, next) {
-    logic(req).then((data) => {
-      res.json(data);
-    }).catch(err => next(err));
+    if (query && query.active != 'all') filterObj.active = query.active
+
+    const paginatedObj = getPaginationFilter(body);
+
+    const qb = new QueryBuilder({
+      buildTotalQuery: true
+    }); // send it true for pagination
+
+    qb.select(columns)
+      .selectTotal('count(*)')
+      .from(tableName)
+
+    qb.where(); // 
+    if (filterObj.cust_id) qb.and().is(columns.cust_id, filterObj.cust_id);
+    if (filterObj.active != 'all') qb.and().is(columns.is_active, true); // fetch payees which are active by default
+
+
+    qb.orderBy(paginatedObj.dbColumnName || columns.full_name);
+    qb.order('DESC'); // paginatedObj.sortOrder ||
+
+    qb.limit(paginatedObj.limit);
+    qb.page(paginatedObj.skip);
+    const result = await qb.paginateQuery(pg);
+
+    return result;
+  } catch (e) {
+    throw e;
   }
-  module.exports = handler;
+}
+
+function handler(req, res, next) {
+  logic(req).then((data) => {
+    res.json(data);
+  }).catch(err => next(err));
+}
+module.exports = handler;

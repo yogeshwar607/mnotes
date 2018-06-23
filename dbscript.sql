@@ -175,11 +175,11 @@ WITH (
 ALTER TABLE "Remittance".individual_doc_detail
   OWNER TO postgres;
 
--- Table: "Remittance".individual_user_detail
+-- Table: "Remittance".individual_customer_detail
 
--- DROP TABLE "Remittance".individual_user_detail;
+-- DROP TABLE "Remittance".individual_customer_detail;
 
-CREATE TABLE "Remittance".individual_user_detail
+CREATE TABLE "Remittance".individual_customer_detail
 (
   registration_id uuid NOT NULL,
   country_of_residence character varying(20) NOT NULL,
@@ -211,7 +211,7 @@ CREATE TABLE "Remittance".individual_user_detail
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE "Remittance".individual_user_detail
+ALTER TABLE "Remittance".individual_customer_detail
   OWNER TO postgres;
 
 -- Table: "Remittance".initial_verification

@@ -80,7 +80,7 @@ async function logic({
     params
 }) {
     const client = await getClient();
-    logger.info('client fetched');
+    logger.info('client fetched in create customer');
 
     let password = await encryptPassword(body.password);
     let registrationId = uuidv4();
@@ -104,7 +104,7 @@ async function logic({
         /** Need to implement atomicity */
         /** ========================== BEGIN QUERY =============================== */
         await client.query('BEGIN');
-        logger.info('client BEGIN');
+        logger.info('client BEGIN create customer');
 
         /** Inserting the data into payee table */
         const {

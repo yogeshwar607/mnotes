@@ -168,3 +168,37 @@ ALTER TABLE "Remittance".transaction
 OWNER TO postgres;
 
 
+
+CREATE TABLE "Remittance".individual_customer_detail
+(
+  cust_id uuid NOT NULL,
+  country_of_residence character varying(20) NOT NULL,
+  country_of_transaction character varying(20) NOT NULL,
+  first_name character varying(50),
+  middle_name character varying(50),
+  last_name character varying(50),
+  title character varying(20),
+  dob date,
+  address_line1 character varying(100),
+  address_line2 character varying(100),
+  postal_code character varying(20),
+  state character varying(15),
+  city character varying(25),
+  nationality character varying(10),
+  employment_status character varying(100),
+  source_of_funds character varying(100),
+  is_pep boolean DEFAULT false,
+  intended_use_of_account character varying(100),
+  net_worth character varying(50),
+  type_of_industry character varying(100),
+  is_dual_citizen boolean DEFAULT false,
+  created_on timestamp(3) with time zone DEFAULT now(),
+  modified_on timestamp(3) with time zone DEFAULT now(),
+  modified_by character varying(100),
+  CONSTRAINT cust1_pkey PRIMARY KEY (cust_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Remittance".individual_customer_detail
+  OWNER TO postgres;

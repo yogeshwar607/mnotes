@@ -24,15 +24,18 @@ async function authorization(router) {
                 return next(err);
             }
             let values = [decoded.sub.id];
-
-            if (decoded.sub.loginType == "customer") {
+            let loginType = decoded && decoded.sub && decoded.sub.loginType ? decoded.sub.loginType :"admin"
+            req.contex ={
+                loginType
+            }
+            if (loginType == "customer") {
         
                 const {
                     rows: a
                 } = await pgQuery('SELECT email FROM "Remittance".customer WHERE registration_id=$1', values);
         
                 if (a.length === 0) {
-                    return next(Boom.AuthorizationError('Authentication failed. User not found.'));
+                    return next(Boom.unauthorized('Authentication failed. User not found.'));
                 } else {
                     request
                         .get('https://ipinfo.io/' + ip + '/json')
@@ -47,14 +50,14 @@ async function authorization(router) {
 
                 }
 
-            } else if (decoded.sub.loginType == "admin") {
+            } else if (loginType == "admin") {
 
                 const {
                     rows: a
                 } = await pgQuery('SELECT email FROM "Remittance".admin_user WHERE id=$1', values);
         
                 if (a.length === 0) {
-                    return next(Boom.AuthorizationError('Authentication failed. User Admin not found.'));
+                    return next(Boom.unauthorized('Authentication failed. User Admin not found.'));
                 } else {
                     return next();
                 }

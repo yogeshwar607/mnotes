@@ -4,6 +4,9 @@ const Joi = require('joi');
 const {
     getTableName
 } = rootRequire('commons').TABLES;
+const {
+    getPaginationFilter,
+} = rootRequire('commons').UTILS
 const tableName = getTableName('transaction');
 const payeeTableName = getTableName('payees');
 
@@ -28,51 +31,6 @@ const columns = {
     created_on: "tx.created_on",
 };
 
-function getSortColumnName(columns, order) {
-    if (columns && order) {
-        return columns[order[0]['column']]['name'];
-    }
-}
-
-function getSortColumnOrder(order) {
-    if (order) {
-        return order[0]['dir'] === 'asc' ? 1 : -1;
-    }
-    // By default sort by updated_at in descending order
-    return -1;
-}
-
-// fetch data from query string and populate it to pagination filter
-function getPaginationFilter(body) {
-    const skip = parseInt(body.start, 10) || 0;
-    const limit = parseInt(body.length, 10) || 10;
-    const draw = parseInt(body.draw, 10);
-    const search = body.search;
-    const columns = body.columns;
-    const order = body.order;
-    const dbColumnName = getSortColumnName(columns, order) || body.defaultSortColumn;
-    const sortOrder = getSortColumnOrder(order) || body.defaultSortOrder;
-    const sort = {};
-    sort[dbColumnName] = sortOrder;
-    return {
-        skip,
-        limit,
-        sort,
-        draw,
-        search,
-        dbColumnName,
-        sortOrder
-    };
-}
-
-function getNoRecordsObject(query) {
-    return {
-        draw: parseInt(query.draw, 10),
-        recordsFiltered: 0,
-        recordsTotal: 0,
-        response: [],
-    };
-}
 
 async function logic({
     query,
@@ -80,8 +38,10 @@ async function logic({
     body,
 }) {
     try {
-        // if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
-        paginatedObj = getPaginationFilter(body);
+        if(false){ // check if customertype is admin/customer
+            if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
+        }
+        const paginatedObj = getPaginationFilter(body);
 
         const qb = new QueryBuilder({
             buildTotalQuery: true
@@ -123,6 +83,7 @@ async function logic({
         throw e;
     }
 }
+
 
 function handler(req, res, next) {
     logic(req).then((data) => {
