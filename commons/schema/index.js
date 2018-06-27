@@ -9,4 +9,5 @@ module.exports = {
   customerJoiSchema,
   payeeJoiSchema,  
   otpJoiSchema,
+  docJoiSchema,
 };

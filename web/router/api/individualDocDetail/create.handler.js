@@ -67,13 +67,11 @@ async function logic({
         const {
             rows: doc
         } = await insert({
-            client,
             tableName: tableName,
             data: docDetailObj,
             returnClause: ['doc_id'],
         });
         return doc;
-
     } catch (e) {
         logger.error(e);
         throw e;

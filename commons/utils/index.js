@@ -443,10 +443,7 @@ function generateUnqNumber() {
   return uniqueID();
 }
 
-
 /** utility functions for sql  **/
-
-
 
 function getCommaSeparatedColumns(obj) {
   return Object.keys(obj).join(',');

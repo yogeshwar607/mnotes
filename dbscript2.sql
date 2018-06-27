@@ -220,7 +220,7 @@ ALTER TABLE "Remittance".individual_customer_detail
   verified_by character varying(100),
   uploaded_on timestamp(3) with time zone,
   uploaded_by character varying(100),
-  comment text array,
+  comment json,
   doc_detail json
 )
 WITH (

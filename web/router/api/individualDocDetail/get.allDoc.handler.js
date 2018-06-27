@@ -15,7 +15,7 @@ const {
 const columns = {
     doc_id: "doc_id",
     cust_id: "cust_id",
-    doc_type:"doc_type"
+    doc_type: "doc_type",
 };
 
 async function logic({
@@ -24,19 +24,20 @@ async function logic({
     body,
 }) {
     try {
-        if (!params.id) return Boom.badRequest(`${'document'} id is not present`);
-        let docId = params.id
-        
+        if (!params.id) return Boom.badRequest(`${'customer'} id is not present`);
+        let custId = params.id
+
         const qb = new QueryBuilder({
             buildTotalQuery: true
         }); // send it true for pagination
 
         qb.select(columns)
-           // .selectTotal('count(*)')
+            // .selectTotal('count(*)')
             .from(tableName)
 
         qb.where(); // 
-        qb.and().is(columns.doc_id, docId);
+        qb.and().is(columns.cust_id, custId);
+
         qb.orderBy(columns.doc_type);
         qb.order('DESC');
 
