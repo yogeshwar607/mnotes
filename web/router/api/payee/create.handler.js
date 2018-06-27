@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4');
+const cuid = require('cuid');
 const Joi = require('joi');
 const Boom = require('boom');
 
@@ -78,7 +78,7 @@ async function logic({
     logger.info('client fetched create payee');
     try {
         // adding payee id 
-        let payeeId = uuidv4();
+        let payeeId = cuid();
         // adding payee_id to body
         body['payee_id'] = payeeId;
 

@@ -1,5 +1,5 @@
 const multer = require('multer');
-const uuid = require('uuid/v1');
+const cuid = require('cuid');
 
 const docstorage = multer.diskStorage({
   destination(req, file, cb) {
@@ -8,7 +8,7 @@ const docstorage = multer.diskStorage({
   filename(req, file, cb) {
     const fileExtension = file.originalname.split('.')[1];
     const originalname = file.originalname.split('.')[0];
-    const filename = [originalname, uuid(), fileExtension].join('.');
+    const filename = [originalname, cuid(), fileExtension].join('.');
     cb(null, filename);
   },
 });

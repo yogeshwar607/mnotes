@@ -1,6 +1,6 @@
 CREATE TABLE "Remittance".payees(
-    payee_id uuid NOT NULL,
-    cust_id uuid NOT NULL,
+    payee_id character varying(100) NOT NULL,
+    cust_id character varying(100) NOT NULL,
     alias character varying(100),
     email character varying(100) NOT NULL,
     pincode character varying(20),
@@ -30,9 +30,9 @@ CREATE TABLE "Remittance".payees(
     routing_code_type_3 character varying(20),
     routing_code_value_3 character varying(20),
     modified_on timestamptz DEFAULT now(),
-    modified_by uuid,
+    modified_by character varying(100),
     created_on timestamptz,
-    created_by uuid,
+    created_by character varying(100),
 
     CONSTRAINT payees_pkey PRIMARY KEY(payee_id)
 )
@@ -43,13 +43,14 @@ ALTER TABLE "Remittance".payees
 OWNER TO postgres;
 
 CREATE TABLE "Remittance".otp_verification_failed_attempt(
-    registration_id uuid NOT NULL,
+    registration_id character varying(100) NOT NULL,
     mobile_number character varying(20),
-    verification_failed_on timestamptz,
+    verification_failed_on timestamptz
 )
 WITH(
     OIDS = FALSE
 );
+
 ALTER TABLE "Remittance".otp_verification_failed_attempt
 OWNER TO postgres;
 
@@ -62,7 +63,7 @@ OWNER TO postgres;
 
 CREATE TABLE "Remittance".customer
 (
-    registration_id uuid NOT NULL,
+    registration_id character varying(100) NOT NULL,
     email character varying(100) COLLATE pg_catalog."default" NOT NULL,
     password character varying(100) COLLATE pg_catalog."default" NOT NULL,
     source character varying(20) COLLATE pg_catalog."default",
@@ -81,7 +82,7 @@ CREATE TABLE "Remittance".customer
     modified_by character varying(100) COLLATE pg_catalog."default",
     mobile_numer character varying(20) COLLATE pg_catalog."default",
     CONSTRAINT customer1_pkey PRIMARY KEY (registration_id),
-    UNIQUE (email,mobile_number),
+    UNIQUE (email,mobile_number)
 )
 WITH (
     OIDS = FALSE
@@ -97,7 +98,7 @@ COMMENT ON COLUMN "Remittance".customer.modified_on
 
 create table "Remittance".otp_verification
 (
-  cust_id                uuid not null,
+  cust_id                character varying(100) not null,
   mobile_number          varchar(20),
   verification_failed_on timestamp(3) with time zone,
   otp_secret             varchar(100),
@@ -110,7 +111,7 @@ OWNER TO postgres;
 
 create table "Remittance".email_verification
 (
-  cust_id                uuid not null,
+  cust_id                character varying(100) not null,
   verification_failed_on timestamp(3) with time zone,
   email_secret           varchar(100),
   created_on             timestamp with time zone default now()
@@ -122,7 +123,7 @@ OWNER TO postgres;
 
 create table "Remittance".transaction
 (
-  transaction_id                        uuid         not null
+  transaction_id                        character varying(100)         not null
     constraint transaction_pkey
     primary key,
   transaction_number                    varchar(100) not null,
@@ -143,7 +144,7 @@ create table "Remittance".transaction
   referral_code                         varchar(15),
   source_of_fund                        varchar(30),
   source_of_fund_other_description      varchar(100),
-  payee_id                              uuid,
+  payee_id                              character varying(100),
   reason_for_transfer                   varchar(30),
   reason_for_transfer_other_description varchar(100),
   payment_mode                          varchar(15),
@@ -156,9 +157,9 @@ create table "Remittance".transaction
   completed_on                          timestamp with time zone,
   cancelled_on                          timestamp with time zone,
   cancelled_by                          varchar(100),
-  cust_id                               uuid         not null,
-  created_by                            uuid,
-  modified_by                           uuid,
+  cust_id                               character varying(100)         not null,
+  created_by                            character varying(100),
+  modified_by                           character varying(100),
   created_on                            timestamp with time zone,
   modified_on                           timestamp with time zone
 )WITH(
@@ -171,7 +172,7 @@ OWNER TO postgres;
 
 CREATE TABLE "Remittance".individual_customer_detail
 (
-  cust_id uuid NOT NULL,
+  cust_id character varying(100) NOT NULL,
   country_of_residence character varying(20) NOT NULL,
   country_of_transaction character varying(20) NOT NULL,
   first_name character varying(50),
@@ -201,4 +202,29 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE "Remittance".individual_customer_detail
+  OWNER TO postgres;
+
+
+  CREATE TABLE "Remittance".individual_doc_detail
+(
+  doc_id serial PRIMARY KEY ,
+  cust_id character varying(100) NOT NULL,
+  transaction_id character varying(100),
+  doc_type character varying(20),
+  doc_path character varying(100),
+  is_deleted boolean DEFAULT false,
+  deleted_on timestamp(3) with time zone,
+  deleted_by character varying(100),
+  is_verified boolean DEFAULT false,
+  verified_on timestamp(3) with time zone,
+  verified_by character varying(100),
+  uploaded_on timestamp(3) with time zone,
+  uploaded_by character varying(100),
+  comment text array,
+  doc_detail json
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Remittance".individual_doc_detail
   OWNER TO postgres;

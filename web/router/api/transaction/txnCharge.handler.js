@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4');
+const cuid = require('cuid');
 const Joi = require('joi');
 const Boom = require('boom');
 

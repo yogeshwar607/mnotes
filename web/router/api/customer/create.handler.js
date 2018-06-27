@@ -2,8 +2,8 @@ const Boom = require('boom');
 const nodemailer = require('nodemailer');
 const config = rootRequire('config').server;
 const jwt = require('jsonwebtoken');
-const uuidv4 = require('uuid/v4');
 const Joi = require('joi');
+const cuid = require('cuid');
 const envConfig = require('nconf');
 const baseUrl = envConfig.get('baseUrl');
 const {
@@ -83,7 +83,7 @@ async function logic({
     logger.info('client fetched in create customer');
 
     let password = await encryptPassword(body.password);
-    let registrationId = uuidv4();
+    let registrationId = cuid();
 
     // adding password and registrationId to body object
     body['password'] = password;

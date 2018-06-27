@@ -2,6 +2,7 @@ const customerJoiSchema = require('./customer.schema');
 const otpJoiSchema = require('./otp.schema');
 const payeeJoiSchema = require('./payee.schema');
 const transactionJoiSchema = require('./transaction.schema');
+const docJoiSchema = require('./doc.schema');
 
 module.exports = {
   transactionJoiSchema,

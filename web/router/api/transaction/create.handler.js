@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4');
+const cuid = require('cuid');
 const Joi = require('joi');
 const Boom = require('boom');
 
@@ -19,7 +19,8 @@ const {
     trimObject,
     getErrorMessages,
     getFullName,
-    postgresDateString
+    postgresDateString,
+    generateUnqNumber
 } = rootRequire('commons').UTILS;
 
 function enrichTransactionObj(body) {
@@ -72,11 +73,11 @@ async function logic({
     logger.info('client fetched');
     try {
         // adding transaction id 
-        let transactionId = uuidv4();
+        let transactionId = cuid();
         // adding transaction_id to body
         body['transaction_id'] = transactionId;
         // generate transaction number 
-        let transactionNo = "XW"+Math.random();
+        let transactionNo = `XW${generateUnqNumber()}AP${generateUnqNumber()}`;
         body['transaction_number'] = transactionNo;
         // add status
         body['status'] = "tx01";

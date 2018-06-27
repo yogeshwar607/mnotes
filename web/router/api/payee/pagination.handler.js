@@ -38,8 +38,6 @@ async function logic({
   body,
   contex,
 }) {
-  const client = await getClient();
-
   try {
 
     const filterObj = {}

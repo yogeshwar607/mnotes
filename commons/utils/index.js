@@ -433,10 +433,20 @@ function csvToJSON(csv) {
 }
 
 
-
+function generateUnqNumber() {
+  const ID_LENGTH = 5
+  const START_LETTERS_ASCII = 48 // Use 64 for uppercase
+  const ALPHABET_LENGTH = 10
+  const uniqueID = () => [...new Array(ID_LENGTH)]
+    .map(() => String.fromCharCode(START_LETTERS_ASCII + Math.random() * ALPHABET_LENGTH))
+    .join('')
+  return uniqueID();
+}
 
 
 /** utility functions for sql  **/
+
+
 
 function getCommaSeparatedColumns(obj) {
   return Object.keys(obj).join(',');
@@ -511,13 +521,13 @@ function generateSecret({
 
 function getSortColumnName(columns, order) {
   if (columns && order) {
-      return columns[order[0]['column']]['name'];
+    return columns[order[0]['column']]['name'];
   }
 }
 
 function getSortColumnOrder(order) {
   if (order) {
-      return order[0]['dir'] === 'asc' ? 1 : -1;
+    return order[0]['dir'] === 'asc' ? 1 : -1;
   }
   // By default sort by updated_at in descending order
   return -1;
@@ -525,10 +535,10 @@ function getSortColumnOrder(order) {
 
 function getNoRecordsObject(query) {
   return {
-      draw: parseInt(query.draw, 10),
-      recordsFiltered: 0,
-      recordsTotal: 0,
-      response: [],
+    draw: parseInt(query.draw, 10),
+    recordsFiltered: 0,
+    recordsTotal: 0,
+    response: [],
   };
 }
 
@@ -545,13 +555,13 @@ function getPaginationFilter(body) {
   const sort = {};
   sort[dbColumnName] = sortOrder;
   return {
-      skip,
-      limit,
-      sort,
-      draw,
-      search,
-      dbColumnName,
-      sortOrder
+    skip,
+    limit,
+    sort,
+    draw,
+    search,
+    dbColumnName,
+    sortOrder
   };
 }
 
@@ -607,4 +617,5 @@ module.exports = {
   verifyToken,
   generateSecret,
   getPaginationFilter,
+  generateUnqNumber,
 };
