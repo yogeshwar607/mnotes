@@ -2,8 +2,13 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const envConfig = require('nconf');
 const Boom = require('boom');
+const {
+    getTableName
+} = rootRequire('commons').TABLES;
 
 const {
+    QueryBuilder,
+    database: pg,
     query: pgQuery,
     decryptComparePassword
 } = rootRequire('db');
@@ -19,8 +24,31 @@ const {
 
 
 const {
-jwtSecret
+    jwtSecret
 } = rootRequire('config').server;
+
+const tableName = getTableName('customer');
+const individualCustomerDetail = getTableName('individual_customer_detail');
+
+const columns = {
+    registration_id: "cu.registration_id",
+    password: "password",
+    cust_id: "info.cust_id",
+    mobile_number: "cu.mobile_number",
+    email: "email",
+    type: "type",
+    is_email_verified: "is_email_verified",
+    is_otp_verified: "is_otp_verified",
+    is_transfer_activated: "is_transfer_activated",
+    source_of_funds: "source_of_funds",
+    first_name: "first_name",
+    middle_name: "middle_name",
+    last_name: "last_name",
+    title: "title",
+    dob: "dob",
+    country_of_residence: "country_of_residence"
+};
+
 
 function enrichCustomerObj(body) {
     return {
@@ -42,21 +70,24 @@ async function logic({
         } = Joi.validate(customerObj, customerJoiSchema.loginSchema, {
             abortEarly: false
         });
-        
+
         if (error) throw Boom.badRequest(getErrorMessages(error));
 
-        const text = 'SELECT registration_id, email, password, source, type,' +
-            'is_email_verified,' +
-            'email_verified_on, is_otp_verified, otp_verified_on, is_transfer_activated,' +
-            'transfer_activated_on, is_account_blocked, is_transaction_blocked, ' +
-            'last_logged_in, created_on, modified_on, modified_by' +
-            ' FROM "Remittance".customer WHERE email=$1';
-        const values = [
-            customerObj.email
-        ];
-        const {
+        const qb = new QueryBuilder({
+            buildTotalQuery: false
+        });
+
+        qb.select(columns)
+            .from(`${tableName} cu`)
+            .leftJoin(`${individualCustomerDetail} info`)
+            .on(`cu.registration_id = info.cust_id`)
+
+        qb.where(); // 
+        qb.and().is(columns.email, customerObj.email);
+
+        let {
             rows: result
-        } = await pgQuery(text, values);
+        } = await qb.query(pg);
 
         if (result.length === 0) {
             return {
@@ -91,6 +122,7 @@ async function logic({
                     }
                 };
                 const token = jwt.sign(payloads, jwtSecret);
+                delete result[0]['password'];
                 return {
                     user: result,
                     token: token

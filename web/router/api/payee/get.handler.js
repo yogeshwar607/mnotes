@@ -9,7 +9,6 @@ const tableName = getTableName('payees');
 const {
     QueryBuilder,
     database: pg,
-    query: pgQuery,
 } = rootRequire('db');
 
 const columns = {
