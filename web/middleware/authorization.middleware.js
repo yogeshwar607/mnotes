@@ -23,10 +23,12 @@ async function authorization(router) {
                 logger.error(`The error while decoding token ${err}`);
                 return next(err);
             }
-            let values = [decoded.sub.id];
+            let id = decoded.sub && decoded.sub.id ?  decoded.sub.id :'';
+            let values = [id];
             let loginType = decoded && decoded.sub && decoded.sub.loginType ? decoded.sub.loginType :"admin"
-            req.contex ={
-                loginType
+            req.context ={
+                loginType,
+                id
             }
             if (loginType == "customer") {
         

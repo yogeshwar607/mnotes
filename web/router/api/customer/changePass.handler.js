@@ -1,33 +1,42 @@
+const Boom = require('boom');
+
 const {
-    query,
-    paramQuery,
+    query: pgQuery,
     decryptComparePassword,
-    encryptPassword
-} = rootRequire('commons').DATABASE;
+    encryptPassword,
+} = rootRequire('db');
 
-function db_query(obj) {
-    return 'SELECT * from  "Remittance".change_password(\'' +
-        obj.vregistration_id + '\',\'' + obj.vold_password + '\',\'' + obj.vnew_password + '\',\'' +
-        obj.vmodified_by +
-        '\')';
-}
 
-async function logic({ body, context, params }) {
-    console.log();
+async function logic({
+    body,
+    context,
+    params
+}) {
     try {
-        let oldPass = await encryptPassword(body.data.oldPass);
-        let newPass = await encryptPassword(body.data.newPass);
-        let obj = {
-            "vregistration_id": body.data.vregistration_id,
-            "vold_password": oldPass,
-            "vnew_password": newPass,
-            "vmodified_by": body.data.vmodified_by
+        if (!body.oldPassword) throw Boom.badRequest("old password not provided");
+        if (!body.newPassword) throw Boom.badRequest("new password not provided");
+        if (body.oldPassword === body.newPassword) throw Boom.badRequest("password cannot be same");
+        let oldPass = body.oldPassword;
+        let newPass = await encryptPassword(body.newPassword);
 
-        };
-        console.log(db_query(obj));
-        let c = await paramQuery(db_query(obj));
+        // fetch old password hash,
+        const {
+            rows
+        } = await pgQuery('SELECT "Remittance".get_password($1)', [context.id]);
+        const passHash = rows.length && rows[0].get_password ? rows[0].get_password : "";
 
-        return c;
+        // compare it with pass
+        const compareResult = await decryptComparePassword(oldPass, passHash);
+        if (!compareResult) throw Boom.badRequest("invalid old password");
+
+        // update new password
+        const {
+            rows: result
+        } = await pgQuery('SELECT "Remittance".change_password($1,$2)', [context.id, newPass]);
+
+        return {
+            "msg": result[0].change_password
+        }
     } catch (e) {
         logger.error(e);
         throw e;

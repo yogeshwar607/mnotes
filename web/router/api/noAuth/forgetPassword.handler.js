@@ -11,7 +11,6 @@ const tableName = getTableName('customer');
 async function logic({
     params
 }) {
-    let custId
     try {
         // validate this token as same to otp validation
         const email = params.id;

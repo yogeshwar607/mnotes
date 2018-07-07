@@ -9,7 +9,6 @@ const tableName = getTableName('individual_doc_detail');
 const {
     QueryBuilder,
     database: pg,
-    query: pgQuery,
 } = rootRequire('db');
 
 const columns = {

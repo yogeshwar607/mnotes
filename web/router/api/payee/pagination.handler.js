@@ -36,12 +36,12 @@ async function logic({
   query,
   params,
   body,
-  contex,
+  context,
 }) {
   try {
 
     const filterObj = {}
-    if ( contex && contex.loginType === "customer") {
+    if ( context && context.loginType === "customer") {
       if (!query.cust_id) return Boom.badRequest(`${'customer'} id is not present`);
       filterObj.cust_id = query.cust_id;
     }

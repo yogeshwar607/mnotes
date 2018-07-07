@@ -10,7 +10,6 @@ const customerTableName = getTableName('customer');
 const {
     QueryBuilder,
     database: pg,
-    query: pgQuery,
 } = rootRequire('db');
 
 const columns = {

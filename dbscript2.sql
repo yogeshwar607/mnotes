@@ -228,3 +228,46 @@ WITH (
 );
 ALTER TABLE "Remittance".individual_doc_detail
   OWNER TO postgres;
+
+
+
+CREATE OR REPLACE function "Remittance".change_password(vregistration_id character varying, vnew_password character varying)
+  returns TABLE(is_success BOOLEAN, message text)
+  as $$
+
+declare ex_user_count integer;
+	password_match_count integer;
+	
+BEGIN 
+	-- if user exists
+	SELECT count(1) into ex_user_count 
+	from  "Remittance".customer
+	where registration_id=vregistration_id;
+	
+	IF (ex_user_count=0)
+	THEN
+		RETURN query select false,'Customer is not registered';
+	ELSE	
+		--update
+			UPDATE "Remittance".customer
+			SET password =vnew_password ,
+				modified_on=now(), modified_by=vregistration_id
+			WHERE registration_id=vregistration_id;
+			return query select true,'Password updated';
+	END IF;
+END;
+$$
+language plpgsql;
+
+
+CREATE OR REPLACE FUNCTION "Remittance".get_password(vregistration_id character varying)
+RETURNS VARCHAR AS $vpass$
+declare
+	vpass varchar;
+BEGIN
+   SELECT password into vpass 
+   from  "Remittance".customer
+   where registration_id=vregistration_id;
+   RETURN vpass;
+END;
+$vpass$ LANGUAGE plpgsql;
