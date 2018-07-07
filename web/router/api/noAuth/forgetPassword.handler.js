@@ -1,6 +1,7 @@
 const {
     QueryBuilder,
     database: pg,
+    query: pgQuery,
 } = rootRequire('db');
 
 const {
@@ -19,49 +20,46 @@ async function logic({
         const qb = new QueryBuilder({
             buildTotalQuery: false
         });
-        qb.select({"email": "email"})
-                .from(tableName)
+        qb.select({
+                "email": "email",
+                "is_email_verified":"is_email_verified"
+            })
+            .from(tableName)
 
-                qb.where(); // 
-                qb.and().is("email", email);
+        qb.where(); // 
+        qb.and().is("email", email);
 
-                const {
-                    rows: result
-                } = await qb.query(pg);
+        const {
+            rows: result
+        } = await qb.query(pg);
 
-                if (result.length === 0) {
-                    return {
-                        msg: "invalid email"
-                    }
-                } else if (result[0].is_email_verified !== true) {
-                    return {
-                        msg: "email not verified"
-                    }
-                } else if (result.length !== 0) {
-                    return {
-                        msg: "Please check your email for further instructions"
-                    }
-                }
+        if (result.length === 0) {
+            return {
+                msg: "invalid email"
             }
-            catch (e) {
-                logger.error(e);
-                throw e;
-            } finally {
-
+        } else if ((result[0].is_email_verified ? result[0].is_email_verified:false) !== true) {
+            return {
+                msg: "email not verified"
+            }
+        } else if (result.length !== 0) {
+            return {
+                msg: "Please check your email for further instructions"
             }
         }
+    } catch (e) {
+        logger.error(e);
+        throw e;
+    }
+}
 
-        function handler(req, res, next) {
-
-            logic(req)
-                .then(data => {
-                    // res.json({
-                    //     success: true,
-                    //     data,
-                    // });
-                    res.status(301).redirect("http://www.xwapp.com")
-
-                })
-                .catch(err => next(err));
-        }
-        module.exports = handler;
+function handler(req, res, next) {
+    logic(req)
+        .then(data => {
+            res.json({
+                success: true,
+                data,
+            });
+        })
+        .catch(err => next(err));
+}
+module.exports = handler;

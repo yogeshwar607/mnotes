@@ -12,6 +12,6 @@ module.exports = (router) => {
     router.post('/admin/login', loginAdmin);
     router.post('/fxRate', fxRate);
     router.post('/customer/create', createCustomer);
-    router.post('/customer/password/forgot/:id',forgotPassword);
+    router.put('/customer/password/forgot/:id',forgotPassword);
     router.post('/customer/password/reset',resetPassword);
 };
