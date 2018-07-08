@@ -35,15 +35,18 @@ async function logic({
 
         if (result.length === 0) {
             return {
-                msg: "invalid email"
+                msg: "invalid email",
+                is_email_sent:false
             }
         } else if ((result[0].is_email_verified ? result[0].is_email_verified:false) !== true) {
             return {
-                msg: "email not verified"
+                msg: "email not verified, please verify your email first",
+                is_email_sent:false
             }
         } else if (result.length !== 0) {
             return {
-                msg: "Please check your email for further instructions"
+                msg: "Please check your email for password",
+                is_email_sent:true
             }
         }
     } catch (e) {

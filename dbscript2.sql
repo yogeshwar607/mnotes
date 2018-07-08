@@ -169,6 +169,23 @@ ALTER TABLE "Remittance".transaction
 OWNER TO postgres;
 
 
+create table "Remittance".customer_state
+(
+  cust_id                character varying(100) not null,
+  is_base_info boolean default false,
+  is_otp_verified boolean default false,
+  is_id_uploaded boolean default false,
+  is_add_uploaded boolean default false,
+  is_selfie_uploaded boolean default false,
+  is_whitelistdoc_uploaded boolean default false
+
+)WITH(
+    OIDS = FALSE
+);
+ALTER TABLE "Remittance".customer_state
+OWNER TO postgres;
+
+
 
 CREATE TABLE "Remittance".individual_customer_detail
 (

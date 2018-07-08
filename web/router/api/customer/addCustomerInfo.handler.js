@@ -21,7 +21,7 @@ const {
 
 function enrichAddUserInfoObj(body) {
     return {
-        cust_id: body.id,
+        cust_id: body.cust_id,
         first_name: body.first_name,
         middle_name: body.middle_name,
         last_name: body.last_name,

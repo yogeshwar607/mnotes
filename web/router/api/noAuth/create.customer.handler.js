@@ -119,16 +119,7 @@ async function logic({
         /** =========================== COMMIT QUERY ============================= */
         await client.query('COMMIT');
         logger.info('client commited in customer create.handler');
-        return customer;
-
-    } catch (e) {
-        await client.query('ROLLBACK');
-        logger.error(e);
-        throw e;
-    } finally {
-        client.release();
-        logger.info('client released in create customer');
-
+       
         const payloads = {
             // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 15))
             exp: envConfig.get("NODE_ENV") === 'production' ? Math.floor(Date.now() / 1000) + (60 * 15) : Math.floor(Date.now() / 1000) + (60 * 15),
@@ -154,6 +145,20 @@ async function logic({
             logger.error(e);
             throw e;
         }
+
+        return {
+            user:  customer.length ? customer[0]:{},
+            token: token
+        };
+        
+    } catch (e) {
+        await client.query('ROLLBACK');
+        logger.error(e);
+        throw e;
+    } finally {
+        client.release();
+        logger.info('client released in create customer');
+
     }
 }
 

@@ -11,7 +11,7 @@ const loginSchema = Joi.object().keys({
 const addUserInfoSchema = Joi.object().keys({
   cust_id: Joi.string().required(),
   first_name: Joi.string().required(),
-  middle_name: Joi.string().required(),
+  middle_name: Joi.string().optional(),
   last_name: Joi.string().required(),
   title: Joi.string().required(),
   dob: Joi.string().required(),

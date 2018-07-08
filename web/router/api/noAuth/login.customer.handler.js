@@ -90,19 +90,13 @@ async function logic({
         } = await qb.query(pg);
 
         if (result.length === 0) {
-            return {
-                msg: "invalid email"
-            }
+            throw Boom.unauthorized('invalid email');
         } else if (result[0].is_email_verified !== true) {
-            return {
-                msg: "email not verified"
-            }
+           throw Boom.unauthorized('email not verified')
         } else if (result.length !== 0) {
             let f = await decryptComparePassword(customerObj.password, result[0].password);
             if (!f) {
-                return {
-                    msg: "invalid password"
-                }
+               throw Boom.unauthorized('invalid password');
             } else {
 
                 const text = 'UPDATE "Remittance".customer' +
@@ -124,7 +118,7 @@ async function logic({
                 const token = jwt.sign(payloads, jwtSecret);
                 delete result[0]['password'];
                 return {
-                    user: result,
+                    user: result[0],
                     token: token
                 };
             }

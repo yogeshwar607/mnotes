@@ -15,6 +15,7 @@ const columns = {
     doc_id: "doc_id",
     cust_id: "cust_id",
     doc_type: "doc_type",
+    doc_path:"doc_path",
 };
 
 async function logic({

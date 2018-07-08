@@ -1,5 +1,7 @@
 const Boom = require('boom');
 const Joi = require('joi');
+const parseUrl = require('parseurl');
+const send = require('send');
 
 const {
     getTableName
@@ -27,38 +29,16 @@ async function logic({
     try {
         if (!params.id) return Boom.badRequest(`${'document'} id is not present`);
         let docId = params.id
-        
-        const qb = new QueryBuilder({
-            buildTotalQuery: true
-        }); // send it true for pagination
+        // find document and read it and send it
 
-        qb.select(columns)
-           // .selectTotal('count(*)')
-            .from(tableName)
-
-        qb.where(); // 
-        qb.and().is(columns.doc_id, docId);
-        qb.orderBy(columns.doc_type);
-        qb.order('DESC');
-
-        const {
-            rows: result
-        } = await qb.query(pg);
-
-        return result;
+       
     } catch (e) {
         throw e;
     }
 }
 
 function handler(req, res, next) {
-    logic(req)
-        .then(data => {
-            res.json({
-                success: true,
-                data,
-            });
-        })
-        .catch(err => next(err));
+    let path = req.query && req.query.path ? req.query.path:'';
+    send(req, path).pipe(res);
 }
 module.exports = handler;

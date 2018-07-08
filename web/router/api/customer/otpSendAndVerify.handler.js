@@ -38,7 +38,7 @@ const smsText = '';
 
 function enrichOtpObj(query) {
     return {
-        id: query.id,
+        id: query.cust_id,
         otp: query.otp,
     }
 }

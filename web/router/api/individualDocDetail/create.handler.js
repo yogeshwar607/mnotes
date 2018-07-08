@@ -39,8 +39,8 @@ function enrichdocDetailObj(body) {
         doc_path:body.doc_path,
         uploaded_on: postgresDateString(new Date()),
         uploaded_by: body.cust_id,
-        comment :body.comment,
-        doc_detail:body.doc_detail,
+        comment :{comment:body.comment},
+        doc_detail:{detail:body.doc_detail},
     }
 }
 

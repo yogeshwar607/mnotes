@@ -6,6 +6,7 @@ const {
 } = rootRequire('commons').TABLES;
 const tableName = getTableName('individual_customer_detail');
 const customerTableName = getTableName('customer');
+const docTableName = getTableName('individual_doc_detail');
 
 const {
     QueryBuilder,
@@ -13,9 +14,9 @@ const {
 } = rootRequire('db');
 
 const columns = {
-    email:"cs.email",
-    mobile_number:"cs.mobile_number",
-    cust_id: "cust_id",
+    email: "cs.email",
+    mobile_number: "cs.mobile_number",
+    cust_id: "doc.cust_id",
     country_of_residence: "country_of_residence",
     country_of_transaction: "country_of_transaction",
     first_name: "first_name",
@@ -36,7 +37,11 @@ const columns = {
     intended_use_of_account: "intended_use_of_account",
     net_worth: "net_worth",
     type_of_industry: "type_of_industry",
-    is_dual_citizen: "is_dual_citizen"
+    is_dual_citizen: "is_dual_citizen",
+    doc_id: "doc_id",
+    doc_type: "doc_type",
+    doc_path: "doc_path",
+
 };
 
 async function logic({
@@ -57,14 +62,26 @@ async function logic({
             .from(tableName)
             .leftJoin(`${customerTableName} cs`)
             .on('cust_id = cs.registration_id')
+            .leftJoin(`${docTableName} doc`)
+            .on('doc.cust_id = cs.registration_id')
+
         qb.where(); // 
         qb.and().is(columns.cust_id, custId);
 
         const {
             rows: result
         } = await qb.query(pg);
-
-        return result;
+        let docArray = [];
+        result.map((ele) => {
+            docArray.push({
+                doc_id: ele.doc_id,
+                doc_path: ele.doc_path,
+                doc_type: ele.doc_type
+            })
+        })
+        let res  = result[0];
+        res["docs"] = docArray;
+        return [res];
     } catch (e) {
         throw e;
     }
