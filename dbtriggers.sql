@@ -1,0 +1,5 @@
+CREATE TRIGGER CUSTOMER_STATE_RECORD_ADDED
+AFTER INSERT
+ON "Remittance".customer
+FOR EACH STATEMENT
+EXECUTE PROCEDURE "Remittance".create_customer_state_record();
