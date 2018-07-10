@@ -8,6 +8,7 @@ const tables = {
     otp_verification:'otp_verification',
     email_verification:'email_verification',
     individual_doc_detail:'individual_doc_detail',
+    customer_state:'customer_state'
 }
 
 function getTableName (key) {

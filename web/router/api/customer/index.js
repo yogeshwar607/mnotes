@@ -8,6 +8,7 @@ const blockAccount = require('./blockAccount.handler');
 const blockTransaction = require('./blockTransaction.handler');
 const getPaginatedCustomers = require('./pagination.handler');
 const getCustomerInfo = require('./getCustomerInfo.handler');
+const getCustomerState = require('./getCustomerState.handler');
 
 module.exports = (router) => {
     router.get('/customer/get', getUser);
@@ -22,4 +23,5 @@ module.exports = (router) => {
     router.post('/customer/block/transaction', blockTransaction);
     router.post('/customer/pagination',getPaginatedCustomers);
     router.get('/customer/info/:id',getCustomerInfo);
+    router.get('/customer/state/:id',getCustomerState);
 };
