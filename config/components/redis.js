@@ -1,7 +1,10 @@
+const config = require('nconf');
+const redis =  config.get("redis");
+
 function config() {
     return {
-      dbURI: '127.0.0.1',
-      port: '6379',
+      dbURI: redis.host,
+      port: redis.port,
       password: '',
     };
   }
