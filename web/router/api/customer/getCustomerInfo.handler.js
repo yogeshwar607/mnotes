@@ -16,7 +16,7 @@ const {
 const columns = {
     email: "cs.email",
     mobile_number: "cs.mobile_number",
-    cust_id: "doc.cust_id",
+    cust_id: "cust_id",
     country_of_residence: "country_of_residence",
     country_of_transaction: "country_of_transaction",
     first_name: "first_name",
@@ -38,16 +38,11 @@ const columns = {
     net_worth: "net_worth",
     type_of_industry: "type_of_industry",
     is_dual_citizen: "is_dual_citizen",
-    doc_id: "doc_id",
-    doc_type: "doc_type",
-    doc_path: "doc_path",
-
 };
 
 async function logic({
-    query,
+    context,
     params,
-    body,
 }) {
     try {
         if (!params.id) return Boom.badRequest(`${'customer'} id is not present`);
@@ -62,26 +57,30 @@ async function logic({
             .from(tableName)
             .leftJoin(`${customerTableName} cs`)
             .on('cust_id = cs.registration_id')
-            .leftJoin(`${docTableName} doc`)
-            .on('doc.cust_id = cs.registration_id')
-
         qb.where(); // 
         qb.and().is(columns.cust_id, custId);
 
-        const {
-            rows: result
-        } = await qb.query(pg);
-        let docArray = [];
-        result.map((ele) => {
-            docArray.push({
-                doc_id: ele.doc_id,
-                doc_path: ele.doc_path,
-                doc_type: ele.doc_type
+        const qb2 = new QueryBuilder({
+            buildTotalQuery: false
+        }); // send it true for pagination
+        qb2.select("*")
+            .from(docTableName)
+        qb2.where(); // 
+        qb2.and().is("cust_id", custId);
+
+       return Promise.all([await qb.query(pg), await qb2.query(pg)])
+            .then((results) => {
+                if (results.length) {
+                    const info = results[0].rows ? results[0].rows : [];
+                    const custDocs = results[1] && results[1].rows ? results[1].rows : [];
+                    if (info.length) info[0]["docs"] = custDocs;
+                    return info
+                }
             })
-        })
-        let res  = result[0];
-        res["docs"] = docArray;
-        return [res];
+            .catch((err) => {
+                logger.error(err);
+                throw err;
+            })
     } catch (e) {
         throw e;
     }

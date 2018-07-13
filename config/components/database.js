@@ -32,31 +32,30 @@ types.setTypeParser(1184, (val) => {
   return val;
 });
 
-const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  user: 'uueubcejqlrroh',
-  password: '1234',
-  database: "Remittance",
-  ssl: false,
-  max: 20,
+// const pool = new Pool({
+//   host: 'localhost',
+//   port: 5432,
+//   user: 'uueubcejqlrroh',
+//   password: '1234',
+//   database: "Remittance",
+//   ssl: false,
+//   max: 20,
   
-})
+// })
 
+const db =  config.get("db");
 // user : 
 
-// 
-
-// const pool = new Pool({
-//   user: config.get('PGUSER'),
-//   host: config.get('PGHOST'),
-//   database: config.get('PGDATABASE'),
-//   password: config.get('PGPASSWORD'),
-//   port: config.get('PGPORT'),
-//   max: config.get('PGMAX'),
-//   idleTimeoutMillis: config.get('PGIDLETIMEOUT'),
-//   connectionTimeoutMillis: config.get('CONNECTIONTIMEOUT'),
-// });
+const pool = new Pool({
+  user: db.user,
+  host: db.host,
+  database: db.database,
+  password: db.password,
+  port: db.port,
+  max: db.max,
+ // idleTimeoutMillis: config.get('PGIDLETIMEOUT'),
+ // connectionTimeoutMillis: config.get('CONNECTIONTIMEOUT'),
+});
 
 pool.on('error', (err) => {
   logger.error(`Postgres connection error on client - ${err.message}`);

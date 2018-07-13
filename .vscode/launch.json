@@ -9,6 +9,7 @@
             "request": "launch",
             "name": "strict node",
             "program": "${workspaceFolder}/index.js",
+            "console": "integratedTerminal",
             "args": [
                 "—-use_strict",
             ]
