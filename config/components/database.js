@@ -43,7 +43,7 @@ types.setTypeParser(1184, (val) => {
   
 // })
 
-const db =  config.get("db");
+const db =  config.get("DB");
 // user : 
 
 const pool = new Pool({

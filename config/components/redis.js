@@ -1,15 +1,12 @@
-const config = require('nconf');
-const redis =  config.get("redis");
+
+const redis =  require('nconf').get("REDIS");
 
 function config() {
     return {
       dbURI: redis.host,
       port: redis.port,
-      password: '',
+      password: redis.password,
     };
   }
   
-
-
-
   module.exports = config();

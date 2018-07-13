@@ -10,6 +10,7 @@
             "name": "strict node",
             "program": "${workspaceFolder}/index.js",
             "console": "integratedTerminal",
+            "timeout": 500000,
             "args": [
                 "—-use_strict",
             ]

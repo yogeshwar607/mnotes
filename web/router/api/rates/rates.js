@@ -1,3 +1,4 @@
+const Boom = require('boom');
 const {
   reutersRate
 } = rootRequire('service');
@@ -23,6 +24,7 @@ function filterReutersResultArray(reutersResult) {
 }
 
 async function getReutersRate(currencies) {
+ try {
   const currenciesLength = currencies.length;
   const currencyPairArray = [];
   for (let i = 0; i < currenciesLength; i += 1) {
@@ -40,6 +42,9 @@ async function getReutersRate(currencies) {
   const reutersResult = await reutersRate(currencyPairArray);
   const filteredReutersResult = filterReutersResultArray(reutersResult.ratesArray);
   return filteredReutersResult;
+ } catch (e) {
+   throw e;
+ }
 }
 
 async function logic({
@@ -47,10 +52,8 @@ async function logic({
 }) {
   try {
     const currencyPairArray = body && body.currencyPairs ? body.currencyPairs : [];
-    if (!currencyPairArray.length) return {
-      success: false,
-      message: 'Please send currency pairs in format - [{sourceCurrency:USD,destinationCurrency:EUR}]'
-    };
+    if (!currencyPairArray.length) return Boom.badRequest(`Please send currency pairs in format - [{sourceCurrency:USD,destinationCurrency:EUR}]`);
+  
     const reutersRates = await getReutersRate(currencyPairArray);
 
     return {
