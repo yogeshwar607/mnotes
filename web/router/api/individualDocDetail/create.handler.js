@@ -34,13 +34,17 @@ const {
 function enrichdocDetailObj(body) {
     return {
         cust_id: body.cust_id,
-        doc_type:body.doc_type,
-        transaction_id:body.transaction_id,
-        doc_path:body.doc_path,
+        doc_type: body.doc_type,
+        transaction_id: body.transaction_id,
+        doc_path: body.doc_path,
         uploaded_on: postgresDateString(new Date()),
         uploaded_by: body.cust_id,
-        comment :{comment:body.comment},
-        doc_detail:{detail:body.doc_detail},
+        comment: {
+            comment: body.comment
+        },
+        doc_detail: {
+            detail: body.doc_detail
+        },
     }
 }
 
@@ -76,34 +80,31 @@ async function logic({
         logger.error(e);
         throw e;
     } finally {
-    
+
     }
 }
 
 function handler(req, res, next) {
 
-    multer.docsMulter(req, res, function (err) {
-        if (err) {
-            return logger.error("Error uploading file.");
-        } else {
-            
+    multer.docsMulter(req, res, (err) => {
+        if (err) throw Boom.badRequest(getErrorMessages(err));
+
             let doc_path = req.files && req.files.length && req.files[0].path ? req.files[0].path : '';
-            let is_file_received = false ;
-            if(req.files && req.files.length) {
-                 is_file_received = true;
+            let is_file_received = false;
+            if (req.files && req.files.length) {
+                is_file_received = true;
             }
             req.context = {};
             req.context.doc_path = doc_path || '';
 
             logic(req).then(data => {
-                data['is_file_received'] =is_file_received;
+                    data['is_file_received'] = is_file_received;
                     res.json({
                         success: true,
                         data,
                     });
                 })
                 .catch(err => next(err));
-        }
     })
 }
 module.exports = handler;
