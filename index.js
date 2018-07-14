@@ -10,7 +10,7 @@ const { mongoose, server } = require('./config');
 
 // Start API Server
 require('./web/server');
-
+require('./createDir');
 logger.info(`Environment: ${server.env}`);
 
 // uncaughtException Exception notification sent to Slack channel
