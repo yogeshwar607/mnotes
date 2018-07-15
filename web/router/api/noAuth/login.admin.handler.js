@@ -44,7 +44,7 @@ async function logic({
 
         if (error) throw Boom.badRequest(getErrorMessages(error));
 
-        const text = 'SELECT id, email, password,is_2fa_enabled' +
+        const text = 'SELECT admin_id, email, password' +
             ' FROM "Remittance".admin_user WHERE email=$1';
         const values = [
             adminObj.email
@@ -64,7 +64,7 @@ async function logic({
                     // token expiry period set for 1 month (Expiry to be set for 1 hour(60 * 60) in production)
                     exp: process.env.NODE_ENV === 'production' ? Math.floor(Date.now() / 1000) + (60 * 60) : Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30),
                     sub: {
-                        id: result[0].id,
+                        id: result[0].admin_id,
                         loginType: "admin"
                     }
                 };

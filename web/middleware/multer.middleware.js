@@ -6,9 +6,10 @@ const docstorage = multer.diskStorage({
     cb(null, './uploads/documents');
   },
   filename(req, file, cb) {
-    const fileExtension = file.originalname.split('.')[1];
+    const fileNameArr = file.originalname.split('.');
+    const fileExtension = fileNameArr.pop();
     const originalname = file.originalname.split('.')[0];
-    const filename = [[originalname, cuid()].join(''), fileExtension].join('.');
+    const filename = [cuid(), fileExtension].join('.');
     cb(null, filename);
   },
 });

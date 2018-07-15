@@ -8,7 +8,7 @@ requestLogger(router);
 // require('./api/authentication')(router);
 require('./api/noAuth')(router);
 
- authorization(router);
+ //authorization(router);
  routeGuard(router);
 // secured components
 

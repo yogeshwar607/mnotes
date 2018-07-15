@@ -1,5 +1,25 @@
 CREATE SCHEMA "Remittance";
 
+CREATE TABLE "Remittance".admin_user
+(
+  admin_id character varying(100) NOT NULL,
+  email character varying(100) NOT NULL,
+  password character varying(100) NOT NULL,
+  role_id integer,
+  created_on timestamp(3) with time zone,
+  created_by character varying(100),
+  is_deleted boolean DEFAULT false,
+  modified_on timestamp(3) with time zone DEFAULT now(),
+  modified_by character varying(100),
+  CONSTRAINT admin_user_pkey PRIMARY KEY (admin_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Remittance".admin_user
+  OWNER TO postgres;
+
+
 CREATE TABLE "Remittance".customer(
   registration_id character varying(100) NOT NULL,
   email character varying(100) COLLATE pg_catalog.

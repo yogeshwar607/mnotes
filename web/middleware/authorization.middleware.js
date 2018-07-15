@@ -10,62 +10,66 @@ const request = require('superagent');
 // const Schema = require('mongoose').Schema;
 
 async function authorization(router) {
-    router.use((req, res, next) => {
-        // validate user and X-ACCESS-TOKEN
-        const token = req.get('X-ACCESS-TOKEN');
-        const agent = req.get('user-agent');
-        const ip = req.get('ip');
-        // const clientId = req.get('X-CLIENT-ID');
-        if (!token) return next(new AppError.AuthorizationError('X-ACCESS-TOKEN header is required'));
-        // if (!clientId) return next(new AppError.AuthorizationError('X-CLIENT-ID header is required'));
-        jwt.verify(token, jwtSecret, async function(err, decoded) {
-            if (err) {
-                logger.error(`The error while decoding token ${err}`);
-                return next(err);
-            }
-            let id = decoded.sub && decoded.sub.id ?  decoded.sub.id :'';
-            let values = [id];
-            let loginType = decoded && decoded.sub && decoded.sub.loginType ? decoded.sub.loginType :"admin"
-            req.context ={
-                loginType,
-                id
-            }
-            if (loginType == "customer") {
-        
-                const {
-                    rows: a
-                } = await pgQuery('SELECT email FROM "Remittance".customer WHERE registration_id=$1', values);
-        
-                if (a.length === 0) {
-                    return next(Boom.unauthorized('Authentication failed. User not found.'));
-                } else {
-                    request
-                        .get('https://ipinfo.io/' + ip + '/json')
-                        .end((err, res) => {
-                            console.log("");
-                            // await paramQuery('INSERT INTO "Remittance".customer_geo_detail(' +
-                            //     'email, activity_type, ip_address, country, city, browser, ' +
-                            //     ' device, created_on)' +
-                            //     ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)', values);
-                            return next();
-                        });
-
+    try {
+        router.use((req, res, next) => {
+            // validate user and X-ACCESS-TOKEN
+            const token = req.get('X-ACCESS-TOKEN');
+            const agent = req.get('user-agent');
+            const ip = req.get('ip');
+            // const clientId = req.get('X-CLIENT-ID');
+            if (!token) return next(new AppError.AuthorizationError('X-ACCESS-TOKEN header is required'));
+            // if (!clientId) return next(new AppError.AuthorizationError('X-CLIENT-ID header is required'));
+            jwt.verify(token, jwtSecret, async function(err, decoded) {
+                if (err) {
+                    logger.error(`The error while decoding token ${err}`);
+                    return next(err);
                 }
-
-            } else if (loginType == "admin") {
-
-                const {
-                    rows: a
-                } = await pgQuery('SELECT email FROM "Remittance".admin_user WHERE id=$1', values);
-        
-                if (a.length === 0) {
-                    return next(Boom.unauthorized('Authentication failed. User Admin not found.'));
-                } else {
-                    return next();
+                let id = decoded.sub && decoded.sub.id ?  decoded.sub.id :'';
+                let values = [id];
+                let loginType = decoded && decoded.sub && decoded.sub.loginType ? decoded.sub.loginType :"admin"
+                req.context ={
+                    loginType,
+                    id
                 }
-            }
+                if (loginType == "customer") {
+            
+                    const {
+                        rows: a
+                    } = await pgQuery('SELECT email FROM "Remittance".customer WHERE registration_id=$1', values);
+            
+                    if (a.length === 0) {
+                        return next(Boom.unauthorized('Authentication failed. User not found.'));
+                    } else {
+                        request
+                            .get('https://ipinfo.io/' + ip + '/json')
+                            .end((err, res) => {
+                                console.log("");
+                                // await paramQuery('INSERT INTO "Remittance".customer_geo_detail(' +
+                                //     'email, activity_type, ip_address, country, city, browser, ' +
+                                //     ' device, created_on)' +
+                                //     ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)', values);
+                                return next();
+                            });
+    
+                    }
+    
+                } else if (loginType == "admin") {
+    
+                    const {
+                        rows: a
+                    } = await pgQuery('SELECT email FROM "Remittance".admin_user WHERE admin_id=$1', values);
+            
+                    if (a.length === 0) {
+                        return next(Boom.unauthorized('Authentication failed. User Admin not found.'));
+                    } else {
+                        return next();
+                    }
+                }
+            });
         });
-    });
+    } catch (e) {
+        throw e;
+    }
 }
 
 module.exports = authorization;
