@@ -41,7 +41,6 @@ const columns = {
 };
 
 async function logic({
-    context,
     params,
 }) {
     try {
