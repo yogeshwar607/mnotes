@@ -6,7 +6,7 @@ require('./globals');
 
 const { mongoose, server } = require('./config');
 
-// mongoose.init();
+ mongoose.init();
 
 // Start API Server
 require('./web/server');
