@@ -1,13 +1,10 @@
-const customerJoiSchema = require('./customer.schema');
-const otpJoiSchema = require('./otp.schema');
-const payeeJoiSchema = require('./payee.schema');
-const transactionJoiSchema = require('./transaction.schema');
-const docJoiSchema = require('./doc.schema');
+const tagsJoiSchema = require('./tags.schema');
+const foldersJoiSchema = require('./folders.schema');
+const notesJoiSchema = require('./notes.schema');
+
 
 module.exports = {
-  transactionJoiSchema,
-  customerJoiSchema,
-  payeeJoiSchema,  
-  otpJoiSchema,
-  docJoiSchema,
+  tagsJoiSchema,
+  notesJoiSchema,
+  foldersJoiSchema,
 };

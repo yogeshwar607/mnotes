@@ -1,16 +1,15 @@
 // const assert = require('assert');
 
-const MODEL = rootRequire('models').User;
+const MODEL = rootRequire('models').Folders;
 const DAO = require('./DAO'); // return constructor function.
 
-function UserDAO() {
+function FoldersDAO() {
   this.Model = MODEL;
 }
 
 // Prototypal Inheritance
-UserDAO.prototype = new DAO();
+FoldersDAO.prototype = new DAO();
 
 module.exports = function () {
-  // assert.ok(clientId, 'clientId is empty');
-  return new UserDAO();
+  return new FoldersDAO();
 };

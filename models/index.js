@@ -8,12 +8,15 @@ const Schema = mongoose.Schema;
 // loading all the models
 
 const User = mongoose.model('user', require('./user.schema')(Schema));
-const Payee = mongoose.model('payee', require('./payee.schema')(Schema));
-
+const Folders = mongoose.model('folders',require('./folders.schema')(Schema));
+const Notes = mongoose.model('notes',require('./notes.schema')(Schema));
+const Tags = mongoose.model('tags',require('./tags.schema')(Schema));
 // registring models
 const model = {
     User,
-    Payee
+    Folders,
+    Notes,
+    Tags
 };
 
 module.exports = model;

@@ -21,7 +21,7 @@ function init() {
   // CONNECTION EVENTS
   // When successfully connected
   mongoose.connection.on('connected', () => {
-    logger.info(`Mongoose default connection open to ${database.dbURI} / ${database.db}`);
+    logger.info(`Mongoose default connection open to db -- ${database.db}`);
   });
 
   // If the connection throws an error
