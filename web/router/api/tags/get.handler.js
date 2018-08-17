@@ -45,18 +45,20 @@ async function logic({
             return ele.tvalue;
         })
 
-        const counts = result.reduce((acc, ele) => {
-            let value = ele.tvalue;
-            acc[value] = acc[value] ? acc[value] + 1 : 1;
-            return acc;
-          }, Object.create(null));
+        // const counts = result.reduce((acc, ele) => {
+        //     let value = ele.tvalue;
+        //     acc[value] = acc[value] ? acc[value] + 1 : 1;
+        //     return acc;
+        //   }, Object.create(null));
 
 
-        // orderBy count and updated_at
+        // // orderBy count and updated_at
        
-        let groupArr = _.groupBy(result,'tvalue');
+        // let groupArr = _.groupBy(result,'tvalue');
        
-        return groupArr;
+        // return groupArr;
+
+        return cleanArr;
 
     } catch (e) {
         logger.error(e);
