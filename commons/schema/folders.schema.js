@@ -1,10 +1,12 @@
+
 const Joi = require('joi');
 
-const foldersSchema = Joi.object().keys({
-  id: Joi.string().required(),
- 
+const createSchema = Joi.object().keys({
+    fid: Joi.string().optional(),
+    fname:Joi.string().required(),
 });
 
+
 module.exports = {
-  foldersSchema,
+    createSchema,
 };

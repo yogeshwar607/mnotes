@@ -6,5 +6,5 @@ const notesJoiSchema = require('./notes.schema');
 module.exports = {
   tagsJoiSchema,
   notesJoiSchema,
-  foldersJoiSchema,
+  foldersJoiSchema
 };

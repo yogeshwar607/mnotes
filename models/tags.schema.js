@@ -3,16 +3,13 @@ let Schema = null;
 
 function init() {
     const tagsSchema = new Schema({
-        tid: {
-            type: String,
-            required: true,
-            unique: true
-        },
-        tcount: {
-            type: Number,
-        },
         tvalue: {
             type: String,
+            index:true
+        },
+        tid: {
+            type: String,
+            index:true
         },
     }, {
         timestamps: {
@@ -20,7 +17,6 @@ function init() {
             updatedAt: 'updated_at'
         }
     });
-
     return tagsSchema;
 }
 

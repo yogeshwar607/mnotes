@@ -12,6 +12,18 @@ const speakeasy = require('speakeasy');
 
 useragent(true);
 
+function getTags(inputText) {
+  let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm;
+  let matches = [];
+  let match;
+
+  while ((match = regex.exec(inputText))) {
+    matches.push(match[1]);
+  }
+
+  return matches;
+}
+
 function isSpecialChar(str, withAmpersand = true) {
   const re = withAmpersand ? /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\':<>\?]/g : /[~`!#$%\^*+=\-\[\]\\';,/{}|\\':<>\?]/g
   const _isSpecialChar = re.test(str);
@@ -564,6 +576,7 @@ function getPaginationFilter(body) {
 
 
 module.exports = {
+  getTags,
   isSpecialChar,
   isNumeric,
   isValidEmailAddress,

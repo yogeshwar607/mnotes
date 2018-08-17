@@ -1,4 +1,5 @@
 const assert = require('assert');
+const cuid = require('cuid');
 let Schema = null;
 
 function init() {
@@ -8,19 +9,17 @@ function init() {
             required: true,
             unique: true
         },
-        nname: {
+        fid: {
             type: String,
-            required: true
         },
         ntext: {
             type: String,
             required: true
         },
-        ntags:[
-            {
-                type:String
-            }
-        ]
+        ntags: [{
+            tvalue: String,
+            tid:String
+        }]
     }, {
         timestamps: {
             createdAt: 'created_at',
@@ -28,8 +27,27 @@ function init() {
         }
     });
 
+    notesSchema.post('save', (doc, next) => {
+        const {
+            tagsDAO
+        } = rootRequire('commons').DAO;
+
+        const tagsArray = doc.ntags;
+
+        tagsArray.map((data) => {
+            new tagsDAO().save({tvalue:data.tvalue,tid:data.tid})
+        })
+        next();
+    });
+
+    notesSchema.pre('remove',function(next) {
+       
+        next();
+    });
+
     return notesSchema;
 }
+
 
 module.exports = (schema) => {
     assert.ok(schema);

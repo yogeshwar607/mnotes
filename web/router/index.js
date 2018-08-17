@@ -12,6 +12,9 @@ requestLogger(router);
  //routeGuard(router);
 // secured components
 
+require('./api/folders')(router);
+require('./api/notes')(router);
+require('./api/tags')(router);
 require('./api/user')(router);
 
 

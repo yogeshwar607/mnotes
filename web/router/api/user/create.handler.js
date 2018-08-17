@@ -65,7 +65,6 @@ function enrichUserObj(body, context, params) {
 }
 
 
-
 async function logic({ body, context, params }) {
     try {
         // console.log(body);
@@ -137,9 +136,6 @@ function handler(req, res, next) {
                         });
                     })
                     .catch(err => next(err));
-
-
-
             }
         });
 
