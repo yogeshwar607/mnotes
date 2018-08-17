@@ -85,6 +85,30 @@ function batchInsert(batch, options) {
   return this.Model.collection.insert(batch, options);
 }
 
+// function aggregate({ queryPipe, model }) {
+//     return (this.Model || model).collection
+//     .aggregate(queryPipe)
+//     .cursor({ batchSize: 2500, async: true })
+//     .exec()
+// }
+
+// function aggregate({ queryPipe, model }) {
+//   return new Promise((resolve, reject) => {
+//     (this.Model || model).collection.aggregate(queryPipe, (err, response) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(response);
+//       }
+//     });
+//   });
+// }
+
+function aggregate({queryPipe, model}){
+  return (this.Model || model).aggregate(queryPipe).cursor({})
+}
+
+
 // Constructor function
 function DAO() {
   // assert.ok(model);
@@ -105,6 +129,7 @@ DAO.prototype = {
   save,
   getModel,
   batchInsert,
+  aggregate
 };
 
 module.exports = DAO;

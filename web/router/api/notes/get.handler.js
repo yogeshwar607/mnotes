@@ -40,9 +40,11 @@ async function logic({
                 }
             };
         }
+        const sortQuery = { updated_at:-1 }
         const _notesDAO = new notesDAO();
         const result = await _notesDAO.find({
-            baseQuery
+            baseQuery,
+            sortQuery
         });
         return result;
 
