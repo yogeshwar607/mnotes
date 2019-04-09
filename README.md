@@ -1,6 +1,17 @@
+# MNotes Application
 
-Setup steps:
+Restful CRUD API for a Note-Taking application using Node.js, Express and MongoDB.
 
-* npm install
-* npm install --save-dev eslint-config-air bnb-base eslint eslint-plugin-import
+## Steps to Setup
 
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Run Server
+
+```bash
+node server.js
+```
